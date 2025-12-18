@@ -12,28 +12,9 @@
 #include <fstream>
 #include <sstream>
 
-//__debugbreak()는 MSVC에만 사용 가능
-#define ASSERT(x) if ((!x)) __debugbreak();
-#define GLCall(x) GLClearError();\
-				  x;\
-				  ASSERT(GLLogCall(#x, __FILE__, __LINE__))
-
-//glGetError는 에러를 하나씩만 반환하기 때문에, 한 번 확인에 모든 오류를 뽑아내는 것이 필요함
-static void GLClearError()
-{
-	while (glGetError() != GL_NO_ERROR); // GL_NO_ERROR == 0
-}
-
-static bool GLLogCall(const char* function, const char* file, int line)
-{
-	while (GLenum error = glGetError())
-	{
-		std::cout << "[OpenGL Error] (" << error << ") : " << function <<
-			" " << file << " in line " << line << std::endl;
-		return false;
-	}
-	return true;
-}
+#include "Renderer.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 struct ShaderProgramSource
 {
@@ -144,6 +125,11 @@ int main(void)
 		return -1;
 	}
 
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // opengl 3.3 version
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE); // Compatability 버전일 때는 VAO를
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
 
@@ -155,59 +141,75 @@ int main(void)
 
 	std::cout << glGetString(GL_VERSION) << std::endl; //내 플랫폼의 GL_Version 출력해보기
 
-	glEnable(GL_CULL_FACE);
-	std::array<float, 12> positions{
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.5f, 0.5f, 0.0f,
-		-0.5f, 0.5f, 0.0f };
-
-	std::array<unsigned int, 6> indices{
-		0, 1, 2,
-		2, 3, 0
-	};
-
-	unsigned int bufferID;
-	glGenBuffers(1, &bufferID);
-	glBindBuffer(GL_ARRAY_BUFFER, bufferID);
-	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), positions.data(), GL_STATIC_DRAW);
-
-	unsigned int ibo; // Index Buffer Object
-	glGenBuffers(1, &ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
-
-	// 데이터를 해석하는 방법
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, // 위 0과 연결되어 있는 것
-		3, // 하나의 vertex에 몇개의 데이터를 넘기는지, 6개의 float 값을 2개씩을 점의 좌표로 활용!, 3차원 점이었다면 여기 3!
-		GL_FLOAT,
-		GL_FALSE,
-		sizeof(float) * 3, // float 데이터 6개, 점 하나마다 데이터 2개씩 주었음
-		0
-	);
-
-	ShaderProgramSource source{ ParseShader("res/shaders/Basic.shader") };
-
-	unsigned int shader = CreateShader(source.VertexSource, source.FragSource);
-	glUseProgram(shader); // active
-
-	/* Loop until the user closes the window */
-	while (!glfwWindowShouldClose(window))
 	{
-		/* Render here */
-		glClear(GL_COLOR_BUFFER_BIT);
+		glEnable(GL_CULL_FACE);
+		std::array<float, 12> positions{
+			-0.5f, -0.5f, 0.0f,
+			0.5f, -0.5f, 0.0f,
+			0.5f, 0.5f, 0.0f,
+			-0.5f, 0.5f, 0.0f };
 
-		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+		std::array<unsigned int, 6> indices{
+			0, 1, 2,
+			2, 3, 0
+		};
 
-		/* Swap front and back buffers */
-		glfwSwapBuffers(window);
+		unsigned int vao;
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
 
-		/* Poll for and process events */
-		glfwPollEvents();
+		VertexBuffer vb{ positions.data(), 4 * 3 * sizeof(float) };
+
+		// 데이터를 해석하는 방법
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, // 위 0과 연결되어 있는 것
+			3, // 하나의 vertex에 몇개의 데이터를 넘기는지, 6개의 float 값을 2개씩을 점의 좌표로 활용!, 3차원 점이었다면 여기 3!
+			GL_FLOAT,
+			GL_FALSE,
+			sizeof(float) * 3, // float 데이터 6개, 점 하나마다 데이터 2개씩 주었음
+			0
+		);
+
+		IndexBuffer ib{ indices.data(), 6 };
+
+		ShaderProgramSource source{ ParseShader("res/shaders/Basic.shader") };
+
+		unsigned int shader = CreateShader(source.VertexSource, source.FragSource);
+		glUseProgram(shader); // active
+
+		int location = glGetUniformLocation(shader, "u_Color");
+		ASSERT(location != -1);
+		glUniform4f(location, 0.2f, 0.3f, 0.8f, 1.0f);
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glUseProgram(0);
+
+		/* Loop until the user closes the window */
+		while (!glfwWindowShouldClose(window))
+		{
+			/* Render here */
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			//glBindBuffer(GL_ARRAY_BUFFER, bufferID);
+			//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+			glBindVertexArray(vao);
+			glUseProgram(shader);
+
+			GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+
+			/* Swap front and back buffers */
+			glfwSwapBuffers(window);
+
+			/* Poll for and process events */
+			glfwPollEvents();
+		}
+
+		glDeleteProgram(shader);
 	}
 
-	glDeleteProgram(shader);
 
 	glfwTerminate();
 	return 0;
