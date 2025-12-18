@@ -1,9 +1,11 @@
 #pragma once
 
+#include <GL/glew.h>
+
 class VertexBuffer
 {
 private:
-	unsigned int rendererID;
+	GLuint rendererID;
 
 public:
 	explicit VertexBuffer(const void* data, unsigned int size);

@@ -1,9 +1,11 @@
 #pragma once
 
+#include <GL/glew.h>
+
 class IndexBuffer
 {
 private:
-	unsigned int rendererID;
+	GLuint rendererID;
 	unsigned int count;
 
 public:

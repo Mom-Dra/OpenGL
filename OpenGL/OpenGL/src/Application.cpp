@@ -15,98 +15,9 @@
 #include "Renderer.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
-
-struct ShaderProgramSource
-{
-	std::string VertexSource;
-	std::string FragSource;
-};
-
-//--------Shader 컴파일 함수----------//
-static unsigned int CompileShader(unsigned int type, const std::string& source)
-{
-	unsigned int id = glCreateShader(type); //셰이더 객체 생성(마찬가지)
-	const char* src = source.c_str();
-	glShaderSource(id, // 셰이더의 소스 코드 명시, 소스 코드를 명시할 셰이더 객체 id
-		1, // 몇 개의 소스 코드를 명시할 것인지
-		&src, // 실제 소스 코드가 들어있는 문자열의 주소값
-		nullptr); // 해당 문자열 전체를 사용할 경우 nullptr입력, 아니라면 길이 명시
-	glCompileShader(id); // id에 해당하는 셰이더 컴파일
-
-	// Error Handling(없으면 셰이더 프로그래밍할때 괴롭다...)
-	int result;
-	glGetShaderiv(id, GL_COMPILE_STATUS, &result); //셰이더 프로그램으로부터 컴파일 결과(log)를 얻어옴
-	if (result == GL_FALSE) //컴파일에 실패한 경우
-	{
-		int length;
-		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length); //log의 길이를 얻어옴
-		char* message = (char*)alloca(length * sizeof(char)); //stack에 동적할당
-		glGetShaderInfoLog(id, length, &length, message); //길이만큼 log를 얻어옴
-		std::cout << "셰이더 컴파일 실패! " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << std::endl;
-		std::cout << message << std::endl;
-		glDeleteShader(id); //컴파일 실패한 경우 셰이더 삭제
-		return 0;
-	}
-
-	return id;
-}
-
-//--------Shader 프로그램 생성, 컴파일, 링크----------//
-static unsigned int CreateShader(const std::string& vertexShader, const std::string& fragShader)
-{
-	unsigned int program = glCreateProgram(); //셰이더 프로그램 객체 생성(int에 저장되는 것은 id)
-	unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
-	unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragShader);
-
-	//컴파일된 셰이더 코드를 program에 추가하고 링크
-	glAttachShader(program, vs);
-	glAttachShader(program, fs);
-	glLinkProgram(program);
-	glValidateProgram(program);
-
-	//셰이더 프로그램을 생성했으므로 vs, fs 개별 프로그램은 더이상 필요 없음
-	glDeleteShader(vs);
-	glDeleteShader(fs);
-
-	return program;
-}
-
-//셰이더 파일 파싱 함수
-static ShaderProgramSource ParseShader(const std::string& filepath)
-{
-	std::ifstream stream(filepath);
-
-	enum class ShaderType
-	{
-		NONE = -1, VERTEX = 0, FRAGMENT = 1
-	};
-
-	std::string line;
-	std::stringstream ss[2];
-	ShaderType type = ShaderType::NONE;
-
-	while (std::getline(stream, line))
-	{
-		if (line.find("#shader") != std::string::npos)
-		{
-			if (line.find("vertex") != std::string::npos) //vertex 셰이더 섹션
-			{
-				type = ShaderType::VERTEX;
-			}
-			else if (line.find("fragment") != std::string::npos) //fragment 셰이더 섹션
-			{
-				type = ShaderType::FRAGMENT;
-			}
-		}
-		else
-		{
-			ss[(int)type] << line << '\n'; //코드를 stringstream에 삽입
-		}
-	}
-
-	return { ss[0].str(), ss[1].str() };
-}
-
+#include "VertexArray.h"
+#include "VertexBufferLayout.h"
+#include "Shader.h"
 
 int main(void)
 {
@@ -143,60 +54,47 @@ int main(void)
 
 	{
 		glEnable(GL_CULL_FACE);
-		std::array<float, 12> positions{
-			-0.5f, -0.5f, 0.0f,
-			0.5f, -0.5f, 0.0f,
-			0.5f, 0.5f, 0.0f,
-			-0.5f, 0.5f, 0.0f };
+		std::array<float, 24> positions{
+			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+			0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+			0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+			-0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f
+		};
 
 		std::array<unsigned int, 6> indices{
 			0, 1, 2,
 			2, 3, 0
 		};
 
-		unsigned int vao;
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
+		VertexArray va;
+		VertexBuffer vb{ positions.data(), 4 * 6 * sizeof(float) };
 
-		VertexBuffer vb{ positions.data(), 4 * 3 * sizeof(float) };
-
-		// 데이터를 해석하는 방법
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, // 위 0과 연결되어 있는 것
-			3, // 하나의 vertex에 몇개의 데이터를 넘기는지, 6개의 float 값을 2개씩을 점의 좌표로 활용!, 3차원 점이었다면 여기 3!
-			GL_FLOAT,
-			GL_FALSE,
-			sizeof(float) * 3, // float 데이터 6개, 점 하나마다 데이터 2개씩 주었음
-			0
-		);
+		VertexBufferLayout layout;
+		layout.push<float>(3);
+		layout.push<float>(3);
+		va.AddBuffer(vb, layout);
 
 		IndexBuffer ib{ indices.data(), 6 };
 
-		ShaderProgramSource source{ ParseShader("res/shaders/Basic.shader") };
+		Shader shader{ "res/shaders/Basic.shader" };
+		shader.Bind();
 
-		unsigned int shader = CreateShader(source.VertexSource, source.FragSource);
-		glUseProgram(shader); // active
+		Renderer renderer;
 
-		int location = glGetUniformLocation(shader, "u_Color");
-		ASSERT(location != -1);
-		glUniform4f(location, 0.2f, 0.3f, 0.8f, 1.0f);
-
-		glBindVertexArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		glUseProgram(0);
+		va.UnBind();
+		vb.UnBind();
+		ib.UnBind();
+		shader.UnBind();
 
 		/* Loop until the user closes the window */
 		while (!glfwWindowShouldClose(window))
 		{
 			/* Render here */
-			glClear(GL_COLOR_BUFFER_BIT);
+			renderer.Clear();
 
-			//glBindBuffer(GL_ARRAY_BUFFER, bufferID);
-			//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-
-			glBindVertexArray(vao);
-			glUseProgram(shader);
+			va.Bind();
+			shader.Bind();
+			renderer.Draw(va, ib, shader);
 
 			GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
@@ -206,8 +104,6 @@ int main(void)
 			/* Poll for and process events */
 			glfwPollEvents();
 		}
-
-		glDeleteProgram(shader);
 	}
 
 
