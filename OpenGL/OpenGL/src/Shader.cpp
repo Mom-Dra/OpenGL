@@ -4,6 +4,7 @@
 #include <sstream>
 #include "Shader.h"
 #include "Renderer.h"
+#include "vendor/glm/gtc/type_ptr.hpp"
 
 Shader::Shader(const std::string& filePath) : filePath{ filePath }
 {
@@ -31,9 +32,17 @@ void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2,
 	GLCall(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3));
 }
 
-void Shader::SetUniform4f(const std::string& name, float value)
+void Shader::SetUniform1f(const std::string& name, float value)
 {
 	GLCall(glUniform1f(GetUniformLocation(name), value));
+}
+
+void Shader::SetUniformMat4f(const std::string& name, const glm::mat4& matrix)
+{
+	GLCall(glUniformMatrix4fv(GetUniformLocation(name), //v가 붙으면 배열을 의미
+		1, //전달할 행렬의 갯수
+		GL_FALSE, //transpose 할것인지(row-major order로 저장하는 경우도 많아서)
+		glm::value_ptr(matrix))); //첫 인자의 주소값 전달
 }
 
 ShaderProgramSource Shader::ParseShader(const std::string& filePath)
