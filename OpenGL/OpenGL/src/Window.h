@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
+#include <array>
 
 class Window
 {
@@ -9,16 +10,30 @@ private:
 	int bufferWidth, bufferHeight;
 	int width, height;
 
+	std::array<bool, 1024> keys{};
+	float lastX, lastY;
+	float xChange, yChange;
+	bool mouseFirstMoved;
+
+	static void HandleKeys(GLFWwindow* window, int key, int code, int action, int mode);
+	static void HandleMouse(GLFWwindow* window, double xPos, double yPos);
+
+	void CreateCallback();
+
 public:
-	explicit Window();
-	explicit Window(int windowWidth, int windowHeight);
+	explicit Window() noexcept;
+	explicit Window(int windowWidth, int windowHeight) noexcept;
 	~Window();
 
 	int Initialize();
 
-	int GetBufferWidth() { return bufferWidth; }
-	int GetBufferHeight() { return bufferHeight; }
+	int GetBufferWidth() const noexcept { return bufferWidth; }
+	int GetBufferHeight() const noexcept { return bufferHeight; }
 
 	bool GetShouldClose() { return glfwWindowShouldClose(mainWindow); }
 	void SwapBuffers() { glfwSwapBuffers(mainWindow); }
+
+	const bool* GetKeys() const noexcept { return keys.data(); }
+	float GetXChange() const noexcept;
+	float GetYChange() const noexcept;
 };
