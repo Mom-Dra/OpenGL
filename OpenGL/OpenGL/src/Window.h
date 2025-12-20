@@ -18,8 +18,6 @@ private:
 	static void HandleKeys(GLFWwindow* window, int key, int code, int action, int mode);
 	static void HandleMouse(GLFWwindow* window, double xPos, double yPos);
 
-	void CreateCallback();
-
 public:
 	explicit Window() noexcept;
 	explicit Window(int windowWidth, int windowHeight) noexcept;
@@ -34,6 +32,9 @@ public:
 	void SwapBuffers() { glfwSwapBuffers(mainWindow); }
 
 	const bool* GetKeys() const noexcept { return keys.data(); }
-	float GetXChange() const noexcept;
-	float GetYChange() const noexcept;
+	float GetXChange() noexcept;
+	float GetYChange() noexcept;
+
+private:
+	void CreateCallback();
 };

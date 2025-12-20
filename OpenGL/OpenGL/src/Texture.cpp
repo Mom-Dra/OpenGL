@@ -3,10 +3,11 @@
 #include "vendor/stb_image/stb_image.h"
 #include <iostream>
 
-Texture::Texture(const std::string& path) : rendererID{ 0 }, filePath{ path }, width{ 0 }, height{ 0 }, bPP{ 0 }
+Texture::Texture(std::string_view path) : rendererID{ 0 }, filePath{ path }, width{ 0 }, height{ 0 }, bPP{ 0 }
 {
 	stbi_set_flip_vertically_on_load(1);
-	localBuffer = stbi_load(path.c_str(), &width, &height, &bPP, 4);
+	localBuffer = stbi_load(path.data(), &width, &height, &bPP, 4);
+
 	if (!localBuffer)
 	{
 		std::cout << "������ �����ϴ� : " << path << std::endl;

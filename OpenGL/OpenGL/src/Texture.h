@@ -12,12 +12,12 @@ private:
 	int width, height, bPP; //(bits per channel)
 
 public:
-	Texture(const std::string& path);
+	explicit Texture(std::string_view path);
 	~Texture();
 
 	void Bind(unsigned int slot = 0) const;
 	void Unbind() const;
 
-	inline int GetWidth() const { return width; }
-	inline int GetHeight() const { return height; }
+	int GetWidth() const noexcept { return width; }
+	int GetHeight() const noexcept { return height; }
 };

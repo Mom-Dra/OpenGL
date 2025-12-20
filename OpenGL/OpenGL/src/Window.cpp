@@ -22,13 +22,13 @@ void Window::HandleKeys(GLFWwindow* window, int key, int code, int action, int m
 		{
 			// 특정 키가 눌렸으면, keys 배열의 해당 키에 해당하는 값을 true로 설정
 			windowObject->keys[key] = true;
-			std::cout << "Pressed: " << key << std::endl;
+			//std::cout << "Pressed: " << key << std::endl;
 		}
 		else if (action == GLFW_RELEASE)
 		{
 			// 특정 키가 떼졌으면, m_Keys 배열의 해당 키에 해당하는 값을 false로 설정
 			windowObject->keys[key] = false;
-			std::cout << "Release: " << key << std::endl;
+			//std::cout << "Release: " << key << std::endl;
 		}
 	}
 }
@@ -57,9 +57,21 @@ void Window::HandleMouse(GLFWwindow* window, double xPos, double yPos)
 		// 변화량을 계산했으므로, 최신 위치를 last로 저장
 		windowObject->lastX = xPos;
 		windowObject->lastY = yPos;
-
-		std::cout << "XChange: " << windowObject->xChange << " YChange: " << windowObject->yChange << std::endl;
 	}
+}
+
+float Window::GetXChange() noexcept
+{
+	float change{ xChange };
+	xChange = 0.0f;
+	return change;
+}
+
+float Window::GetYChange() noexcept
+{
+	float change{ yChange };
+	yChange = 0.0f;
+	return change;
 }
 
 void Window::CreateCallback()
@@ -121,7 +133,7 @@ int Window::Initialize()
 	CreateCallback();
 
 	// 프로그램을 실행하고 있으면 마우스 커서가 창 밖으로 나가지 않게!
-	glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	// callback은 static 함수로 선언되었으므로, static 함수 중에 어떤 윈도우에서
 	// 이벤트가 발생했는지를 지정해 주어야 함
