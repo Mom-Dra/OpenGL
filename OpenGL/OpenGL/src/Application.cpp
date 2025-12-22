@@ -21,6 +21,7 @@
 #include "Window.h"
 #include "Camera.h"
 #include "Texture.h"
+#include "Model.h"
 #include "Manager/TimeManager.h"
 #include "vendor/glm/glm.hpp"
 #include "vendor/glm/gtc/matrix_transform.hpp"
@@ -39,28 +40,31 @@ int main(void)
 
 	{
 		//glEnable(GL_CULL_FACE);
-		std::array<float, 16> positions{
-			-0.5f, -0.5f, 0.0f, 0.0f,
-			0.5f, -0.5f, 1.0f, 0.0f,
-			0.5f, 0.5f, 1.0f, 1.0f,
-			-0.5f, 0.5f, 0.0f, 1.0f };
+		//std::array<float, 16> positions{
+		//	-0.5f, -0.5f, 0.0f, 0.0f,
+		//	0.5f, -0.5f, 1.0f, 0.0f,
+		//	0.5f, 0.5f, 1.0f, 1.0f,
+		//	-0.5f, 0.5f, 0.0f, 1.0f };
 
-		std::array<unsigned int, 6> indices{
-			0, 1, 2,
-			2, 3, 0
-		};
+		//std::array<unsigned int, 6> indices{
+		//	0, 1, 2,
+		//	2, 3, 0
+		//};
 
-		VertexArray va;
-		VertexBuffer vb{ positions.data(), 4 * 4 * sizeof(float) };
+		//VertexArray va;
+		//VertexBuffer vb{ positions.data(), 4 * 4 * sizeof(float) };
 
-		VertexBufferLayout layout;
-		layout.push<float>(2); // vertex당 2개의 위치를 포현하는 float 데이터
-		layout.push<float>(2); // vertex당 2개의 텍스쳐 좌표를 표현하는 float 데이터
+		//VertexBufferLayout layout;
+		//layout.push<float>(2); // vertex당 2개의 위치를 포현하는 float 데이터
+		//layout.push<float>(2); // vertex당 2개의 텍스쳐 좌표를 표현하는 float 데이터
 
-		//layout.push<float>(3);
-		va.AddBuffer(vb, layout);
+		////layout.push<float>(3);
+		//va.AddBuffer(vb, layout);
 
-		IndexBuffer ib{ indices.data(), 6 };
+		//IndexBuffer ib{ indices.data(), 6 };
+
+		Model teapot;
+		teapot.LoadModel("res/models/teapot.obj");
 
 		Camera camera{ glm::vec3{0.0f, 0.0f, 5.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, -90.0f, 0.0f, 5.0f, 0.5f };
 
@@ -72,16 +76,16 @@ int main(void)
 		Shader shader{ "res/shaders/Basic.shader" };
 		shader.Bind();
 
-		Texture texture{ "res/textures/steve.jpg" };
-		texture.Bind(); // 0번 슬롯에 바인딩
-		shader.SetUniform1i("u_Texture", 0); // 0번 슬롯의 텍스처를 사용할 것이라는 것을 셰이더에 명시
+		//Texture texture{ "res/textures/steve.jpg" };
+		//texture.Bind(); // 0번 슬롯에 바인딩
+		//shader.SetUniform1i("u_Texture", 0); // 0번 슬롯의 텍스처를 사용할 것이라는 것을 셰이더에 명시
 
 		Renderer renderer;
 
-		va.UnBind();
+		/*va.UnBind();
 		vb.UnBind();
-		ib.UnBind();
-		shader.UnBind();
+		ib.UnBind();*/
+		//shader.UnBind();
 
 		TimeManager::GetInstance().Initialize();
 
@@ -102,7 +106,8 @@ int main(void)
 			shader.SetUniformMat4f("u_Model", model);
 			shader.SetUniformMat4f("u_View", camera.calculateViewMatrix());
 			shader.SetUniformMat4f("u_Proj", proj);
-			renderer.Draw(va, ib, shader);
+
+			teapot.RenderModel(shader);
 
 			//GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 

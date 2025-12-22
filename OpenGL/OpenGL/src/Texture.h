@@ -11,6 +11,8 @@ private:
 	unsigned char* localBuffer;
 	int width, height, bPP; //(bits per channel)
 
+	bool isLoaded{ false };
+
 public:
 	explicit Texture(std::string_view path);
 	~Texture();
@@ -20,4 +22,6 @@ public:
 
 	int GetWidth() const noexcept { return width; }
 	int GetHeight() const noexcept { return height; }
+
+	bool IsLoaded() const noexcept { return isLoaded; }
 };
