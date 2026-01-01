@@ -5,6 +5,8 @@
 
 Texture::Texture(std::string_view path) : rendererID{ 0 }, filePath{ path }, width{ 0 }, height{ 0 }, bPP{ 0 }
 {
+	std::cout << "Texture()\n";
+
 	// 텍스처 위아래 뒤집음(OpenGL은 좌표계 다름)
 	stbi_set_flip_vertically_on_load(1);
 	localBuffer = stbi_load(path.data(), &width, &height, &bPP, 4); // 디스크에서 이미지 읽어오기
@@ -15,6 +17,8 @@ Texture::Texture(std::string_view path) : rendererID{ 0 }, filePath{ path }, wid
 		return;
 	}
 
+	std::cout << "Texture Success\n";
+
 	isLoaded = true;
 
 	GLCall(glGenTextures(1, &rendererID)); // 텍스처 버퍼 생성
@@ -22,8 +26,8 @@ Texture::Texture(std::string_view path) : rendererID{ 0 }, filePath{ path }, wid
 
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
 
 	// 텍스처 데이터 전달
 	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, localBuffer));
@@ -42,7 +46,7 @@ Texture::~Texture()
 
 void Texture::Bind(unsigned int slot) const
 {
-	GLCall(glActiveTexture(GL_TEXTURE0 + slot)); //�ؽ�ó�� Ȱ��ȭ �� �� �ִ� ������ �����Ǿ� ������, �̸� �����ؾ� ��
+	GLCall(glActiveTexture(GL_TEXTURE0 + slot)); // 텍스처는 활성화 할 수 있는 슬롯이 한정되어 있으며, 
 	GLCall(glBindTexture(GL_TEXTURE_2D, rendererID));
 }
 

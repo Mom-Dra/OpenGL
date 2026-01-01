@@ -102,6 +102,9 @@ void Model::LoadMaterials(const aiScene& scene)
 		const aiMaterial& material{ *scene.mMaterials[i] };
 
 		bool isTextureAdded{ false };
+
+		unsigned int count{ material.GetTextureCount(aiTextureType_DIFFUSE) };
+		std::cout << "Diffuse Texture Count: " << count << std::endl;
 		
 		if (material.GetTextureCount(aiTextureType_DIFFUSE))
 		{
@@ -127,7 +130,7 @@ void Model::LoadMaterials(const aiScene& scene)
 
 		if(!isTextureAdded)
 		{
-			std::cout << "textre load failed\n";
+			std::cout << "textre load failed.. Load steve.jpg\n";
 			textureList.emplace_back(std::make_unique<Texture>("res/textures/steve.jpg"));
 		}
 	}

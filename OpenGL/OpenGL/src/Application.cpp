@@ -22,6 +22,7 @@
 #include "Camera.h"
 #include "Texture.h"
 #include "Model.h"
+#include "Light.h"
 #include "Manager/TimeManager.h"
 #include "vendor/glm/glm.hpp"
 #include "vendor/glm/gtc/matrix_transform.hpp"
@@ -39,7 +40,8 @@ int main(void)
 	mainWindow.Initialize();
 
 	{
-		//glEnable(GL_CULL_FACE);
+		glEnable(GL_CULL_FACE);
+		//glEnable(GL_DEPTH_TEST);
 		//std::array<float, 16> positions{
 		//	-0.5f, -0.5f, 0.0f, 0.0f,
 		//	0.5f, -0.5f, 1.0f, 0.0f,
@@ -76,11 +78,13 @@ int main(void)
 		Shader shader{ "res/shaders/Basic.shader" };
 		shader.Bind();
 
-		//Texture texture{ "res/textures/steve.jpg" };
-		//texture.Bind(); // 0번 슬롯에 바인딩
-		//shader.SetUniform1i("u_Texture", 0); // 0번 슬롯의 텍스처를 사용할 것이라는 것을 셰이더에 명시
+		Texture texture{ "res/textures/uvchecker.jpg" };
+		texture.Bind(); // 0번 슬롯에 바인딩
+		shader.SetUniform1i("u_Texture", 0); // 0번 슬롯의 텍스처를 사용할 것이라는 것을 셰이더에 명시
 
 		Renderer renderer;
+		
+		Light mainLight{ glm::vec3{1.0f, 1.0f, 1.0f}, 0.9f };
 
 		/*va.UnBind();
 		vb.UnBind();
@@ -102,6 +106,8 @@ int main(void)
 
 			//va.Bind();
 			shader.Bind();
+			mainLight.useLight(shader);
+
 			//shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
 			shader.SetUniformMat4f("u_Model", model);
 			shader.SetUniformMat4f("u_View", camera.calculateViewMatrix());
