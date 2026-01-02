@@ -16,7 +16,7 @@ void main()
 {
 	gl_Position = u_Proj * u_View * u_Model * vec4(position, 1.0);
 	v_TexCoord = texCoord;
-	v_Normal = normal;
+	v_Normal = normalize(transpose(inverse(mat3(u_Model))) * normal);
 };
 
 #shader fragment
@@ -28,6 +28,9 @@ struct DirectionalLight
 {
 	vec3 lightColor;
 	float ambientIntensity;
+
+	vec3 direction;
+	float diffuseIntensity;
 };
 
 in vec2 v_TexCoord; // 버텍스 쉐이더에서 넘겨받은 데이터
@@ -42,7 +45,11 @@ void main()
 	// color * ambient
 	// 원래는 우리가 s_a 값으로 (0.5, 0.2, 0.3)을 넘겨주고 싶다..!
 	vec3 lightAmbient = u_DirectionalLight.lightColor * u_DirectionalLight.ambientIntensity;
-	color = texture(u_Texture, v_TexCoord) * vec4(lightAmbient, 1.0);
+
+	float diffuseFactor = max(dot(normalize(v_Normal), normalize(-u_DirectionalLight.direction)), 0.0);
+	vec3 lightDiffuse = u_DirectionalLight.lightColor * u_DirectionalLight.diffuseIntensity * diffuseFactor;
+
+	color = texture(u_Texture, v_TexCoord) * vec4(lightAmbient + lightDiffuse, 1.0);
 
 	// color = vec4(lightAmbient, 1.0);
 	
