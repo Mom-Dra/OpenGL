@@ -19,6 +19,6 @@ public:
 		const glm::vec3& lightDir, float dIntensity);
 	~Light();
 
-	void useLight(Shader& shader);
+	void UseLight(Shader& shader);
 };
 

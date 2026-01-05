@@ -20,7 +20,8 @@ public:
 	void KeyControl(const bool* keys);
 	void MouseControl(float xChange, float yChange);
 
-	glm::mat4 calculateViewMatrix() const noexcept;
+	glm::mat4 CalculateViewMatrix() const noexcept;
+	glm::vec3 GetEyePosition() const noexcept { return eye; }
 
 private:
 	void Update();

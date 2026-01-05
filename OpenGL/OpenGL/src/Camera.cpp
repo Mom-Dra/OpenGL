@@ -63,7 +63,7 @@ void Camera::MouseControl(float xChange, float yChange)
 	Update();
 }
 
-glm::mat4 Camera::calculateViewMatrix() const noexcept
+glm::mat4 Camera::CalculateViewMatrix() const noexcept
 {
 	return glm::lookAt(eye, eye + front, up);
 }
