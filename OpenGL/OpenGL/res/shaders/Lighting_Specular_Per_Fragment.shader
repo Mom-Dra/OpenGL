@@ -28,13 +28,17 @@ void main()
 
 layout(location = 0) out vec4 color;
 
-struct DirectionalLight
+struct Light
 {
 	vec3 lightColor;
 	float ambientIntensity;
-
-	vec3 direction;
 	float diffuseIntensity;
+};
+
+struct DirectionalLight
+{
+	Light base;
+	vec3 direction;
 };
 
 struct Material
@@ -52,18 +56,28 @@ uniform sampler2D u_Texture;
 uniform DirectionalLight u_DirectionalLight;
 uniform Material u_Material;
 
-void main()
+vec3 CalcLight(Light light, vec3 direction)
 {
-	vec3 lightAmbient = u_DirectionalLight.lightColor * u_DirectionalLight.ambientIntensity;
+	vec3 lightAmbient = light.lightColor * light.ambientIntensity;
 
-	vec3 lightDir = normalize(-u_DirectionalLight.direction);
+	vec3 lightDir = normalize(-direction);
 	float diffuseFactor = max(dot(normalize(v_Normal), lightDir), 0.0);
-	vec3 lightDiffuse = u_DirectionalLight.lightColor * u_DirectionalLight.diffuseIntensity * diffuseFactor;
+	vec3 lightDiffuse = light.lightColor * light.diffuseIntensity * diffuseFactor;
 
 	vec3 fragToEye = normalize(u_EyePosition - v_WorldPosition);
 	vec3 rVec = 2.0 * v_Normal * dot(v_Normal, lightDir) - lightDir;
-	vec3 lightSpecular = pow(max(dot(rVec, fragToEye), 0.0), u_Material.shininess) * u_DirectionalLight.lightColor * u_Material.specularIntensity;
+	vec3 lightSpecular = pow(max(dot(rVec, fragToEye), 0.0), u_Material.shininess) * light.lightColor * u_Material.specularIntensity;
 
-	color = texture(u_Texture, v_TexCoord) * vec4(lightAmbient + lightDiffuse + lightSpecular, 1.0);
-	// color = texture(u_Texture, v_TexCoord) * vec4(lightAmbient + lightDiffuse, 1.0) + vec4(lightSpecular, 1.0);
+	return (lightAmbient + lightDiffuse + lightSpecular);
+}
+
+vec3 CalcDirectionalLight()
+{
+	return CalcLight(u_DirectionalLight.base, u_DirectionalLight.direction);
+}
+
+void main()
+{
+	vec3 lightColor = CalcDirectionalLight();
+	color = texture(u_Texture, v_TexCoord) * vec4(lightColor, 1.0);
 }
