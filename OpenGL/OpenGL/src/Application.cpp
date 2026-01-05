@@ -43,15 +43,14 @@ int main(void)
 	mainWindow.Initialize();
 
 	{
-		glEnable(GL_CULL_FACE);
-		glEnable(GL_DEPTH_TEST);
-
 		Model teapot;
 		teapot.LoadModel("res/models/teapot.obj");
 
+		Model plane;
+		plane.LoadModel("res/models/SubdividedPlane_100.obj");
+
 		Camera camera{ glm::vec3{0.0f, 0.0f, 5.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, -90.0f, 0.0f, 5.0f, 0.5f };
 
-		// Model view projection matrix 전달
 		glm::mat4 model{ glm::translate(glm::mat4{1.0f}, glm::vec3{0.0f, 0.0f, 0.0f}) };
 		float aspect{ static_cast<float>(mainWindow.GetBufferWidth()) / mainWindow.GetBufferHeight() };
 		glm::mat4 proj{ glm::perspective(glm::radians(45.0f), aspect, 1.0f, 100.0f) };
@@ -60,12 +59,22 @@ int main(void)
 		shaderPerFragment.Bind();
 
 		Texture texture{ "res/textures/uvchecker.jpg" };
-		texture.Bind(); // 0번 슬롯에 바인딩
-		//shaderPerVertex.SetUniform1i("u_Texture", 0); // 0번 슬롯의 텍스처를 사용할 것이라는 것을 셰이더에 명시
+		texture.Bind(0); // 0번 슬롯에 바인딩
+		shaderPerFragment.SetUniform1i("u_Texture", 0); // 0번 슬롯의 텍스처를 사용할 것이라는 것을 셰이더에 명시
+
+		Shader simpleTransparent{ "res/shaders/SimpleTransparent.shader" };
+		simpleTransparent.Bind();
+
+		glm::mat4 planeModeMat{ glm::mat4{ 1.0f } };
+		planeModeMat = glm::scale(planeModeMat, glm::vec3{ 0.1f, 0.1f, 0.1f });
+		planeModeMat = glm::rotate(planeModeMat, glm::radians(90.0f), glm::vec3{ 1.0f, 0.0f, 0.0f });
+		planeModeMat = glm::translate(planeModeMat, glm::vec3{ 0.0f, 110.0f, 0.0f });
+		simpleTransparent.SetUniformMat4f("u_Model", planeModeMat);
+		simpleTransparent.SetUniformMat4f("u_Proj", proj);
+		simpleTransparent.SetUniformMat4f("u_View", camera.CalculateViewMatrix());
+		simpleTransparent.SetUniform4f("u_Color", 0.2f, 0.3f, 0.8f, 0.5f);
 
 		Renderer renderer;
-		
-		//Light mainLight{ glm::vec3{1.0f, 1.0f, 1.0f}, 0.2f, glm::vec3{2.0f, -1.0f, -2.0f}, 1.0f };
 
 		DirectionalLight mainLight{ glm::vec3{1.0f, 1.0f, 1.0f}, 0.3f, glm::vec3{2.0f, -1.0f, -2.0f}, 0.3f };
 
@@ -102,6 +111,12 @@ int main(void)
 
 			teapot.RenderModel(shaderPerFragment);
 			shaderPerFragment.UnBind();
+
+			simpleTransparent.Bind();
+			simpleTransparent.SetUniformMat4f("u_View", camera.CalculateViewMatrix());
+
+			plane.RenderModel(simpleTransparent);
+			simpleTransparent.UnBind();
 
 			/* Swap front and back buffers */
 			mainWindow.SwapBuffers();

@@ -38,7 +38,7 @@ in vec3 v_Normal;
 
 uniform sampler2D u_Texture; // texture´Â sampler2D Å¸ÀÔ
 uniform DirectionalLight u_DirectionalLight;
-		
+
 void main()
 {
 	// c * a = s_a

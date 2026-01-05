@@ -142,4 +142,11 @@ int Window::Initialize()
 	// 舅颇 盲澄 贸府 规过
 	GLCall(glEnable(GL_BLEND));
 	GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
+	// cull face
+	GLCall(glEnable(GL_CULL_FACE));
+	GLCall(glCullFace(GL_BACK));
+
+	// depth test
+	GLCall(glEnable(GL_DEPTH_TEST));
 }
