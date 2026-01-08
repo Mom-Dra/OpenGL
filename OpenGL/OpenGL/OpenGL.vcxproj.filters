@@ -66,6 +66,7 @@
     <None Include="res\shaders\Lighting_Specular_Per_Fragment.shader" />
     <None Include="res\shaders\Lighting_Specular_Per_Vertex.shader" />
     <None Include="res\shaders\SimpleTransparent.shader" />
+    <None Include="res\shaders\Lighting_And_NormalMap.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">

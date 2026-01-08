@@ -56,9 +56,11 @@ uniform sampler2D u_Texture;
 uniform DirectionalLight u_DirectionalLight;
 uniform Material u_Material;
 
+uniform sampler2D u_Normal;
+
 vec3 CalcLight(Light light, vec3 direction)
 {
-	vec3 normal = normalize(v_Normal);
+	vec3 normal = normalize(2.0 * texture(u_Normal, v_TexCoord).rgb - 1.0);
 
 	vec3 lightAmbient = light.lightColor * light.ambientIntensity;
 

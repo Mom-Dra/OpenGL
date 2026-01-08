@@ -35,7 +35,7 @@
 //
 //}
 
-void ChangeProgramAndMaterial(int&, const bool*);
+void ChangeProgramAndMaterial(int&, int&, const bool*);
 
 int main(void)
 {
@@ -58,11 +58,16 @@ int main(void)
 		Shader shaderPerFragment{ "res/shaders/Lighting_Specular_Per_Fragment.shader" };
 		shaderPerFragment.Bind();
 
-		Texture texture{ "res/textures/uvchecker.jpg" };
-		texture.Bind(0); // 0번 슬롯에 바인딩
-		shaderPerFragment.SetUniform1i("u_Texture", 0); // 0번 슬롯의 텍스처를 사용할 것이라는 것을 셰이더에 명시
+		Shader shaderNormalMap{ "res/shaders/Lighting_And_NormalMap.shader" };
+		shaderNormalMap.Bind();
 
-		Shader simpleTransparent{ "res/shaders/SimpleTransparent.shader" };
+		Texture texture{ "res/textures/diffuse.png" };
+		//texture.Bind(0); // 0번 슬롯에 바인딩
+		//shaderPerFragment.SetUniform1i("u_Texture", 0); // 0번 슬롯의 텍스처를 사용할 것이라는 것을 셰이더에 명시
+
+		Texture normalMap{ "res/textures/normal.png" };
+
+		/*Shader simpleTransparent{ "res/shaders/SimpleTransparent.shader" };
 		simpleTransparent.Bind();
 
 		glm::mat4 planeModeMat{ glm::mat4{ 1.0f } };
@@ -72,7 +77,7 @@ int main(void)
 		simpleTransparent.SetUniformMat4f("u_Model", planeModeMat);
 		simpleTransparent.SetUniformMat4f("u_Proj", proj);
 		simpleTransparent.SetUniformMat4f("u_View", camera.CalculateViewMatrix());
-		simpleTransparent.SetUniform4f("u_Color", 0.2f, 0.3f, 0.8f, 0.5f);
+		simpleTransparent.SetUniform4f("u_Color", 0.2f, 0.3f, 0.8f, 0.5f);*/
 
 		Renderer renderer;
 
@@ -84,6 +89,7 @@ int main(void)
 
 		int showObjectNum{ 0 };
 		int materialNum{ 0 };
+		int shaderNum{ 0 };
 
 		TimeManager::GetInstance().Initialize();
 
@@ -95,41 +101,66 @@ int main(void)
 			camera.KeyControl(mainWindow.GetKeys());
 			camera.MouseControl(mainWindow.GetXChange(), mainWindow.GetYChange());
 
-			ChangeProgramAndMaterial(materialNum, mainWindow.GetKeys());
+			ChangeProgramAndMaterial(materialNum, shaderNum, mainWindow.GetKeys());
 
 			/* Render here */
 			renderer.Clear();
 
-			shaderPerFragment.Bind();
-			mainLight.UseLight(shaderPerFragment);
-			materials[materialNum].UseMaterial(shaderPerFragment);
+			if (shaderNum == 0)
+			{
+				shaderPerFragment.Bind();
+				mainLight.UseLight(shaderPerFragment);
+				materials[materialNum].UseMaterial(shaderPerFragment);
+				glm::mat4 planeModeMat{ glm::mat4{1.0} };
 
-			shaderPerFragment.SetUniformMat4f("u_Model", model);
-			shaderPerFragment.SetUniformMat4f("u_View", camera.CalculateViewMatrix());
-			shaderPerFragment.SetUniformMat4f("u_Proj", proj);
-			shaderPerFragment.SetUniform3f("u_EyePosition", camera.GetEyePosition().x, camera.GetEyePosition().y, camera.GetEyePosition().z);
+				planeModeMat = glm::rotate(planeModeMat, 90.0f, glm::vec3{ 1.0f, 0.0f, 0.0f });
+				planeModeMat = glm::scale(planeModeMat, glm::vec3{ 0.1f, 0.1f, 0.1f });
 
-			teapot.RenderModel(shaderPerFragment);
-			shaderPerFragment.UnBind();
+				shaderPerFragment.SetUniformMat4f("u_Model", planeModeMat);
+				shaderPerFragment.SetUniformMat4f("u_View", camera.CalculateViewMatrix());
+				shaderPerFragment.SetUniformMat4f("u_Proj", proj);
+				shaderPerFragment.SetUniform3f("u_EyePosition", camera.GetEyePosition().x, camera.GetEyePosition().y, camera.GetEyePosition().z);
+				texture.Bind();
+				shaderPerFragment.SetUniform1i("u_Texture", 0);
+				/*normalMap.Bind(1);
+				shaderPerFragment.SetUniform1i("u_Normal", 1);*/
+				plane.RenderModel(shaderPerFragment);
+				shaderPerFragment.UnBind();
+			}
+			else if (shaderNum == 1)
+			{
+				shaderNormalMap.Bind();
+				mainLight.UseLight(shaderNormalMap);
+				materials[materialNum].UseMaterial(shaderNormalMap);
+				glm::mat4 planeModeMat{ glm::mat4{1.0} };
 
-			simpleTransparent.Bind();
-			simpleTransparent.SetUniformMat4f("u_View", camera.CalculateViewMatrix());
+				planeModeMat = glm::rotate(planeModeMat, 90.0f, glm::vec3{ 1.0f, 0.0f, 0.0f });
+				planeModeMat = glm::scale(planeModeMat, glm::vec3{ 0.1f, 0.1f, 0.1f });
 
-			plane.RenderModel(simpleTransparent);
-			simpleTransparent.UnBind();
+				shaderNormalMap.SetUniformMat4f("u_Model", planeModeMat);
+				shaderNormalMap.SetUniformMat4f("u_View", camera.CalculateViewMatrix());
+				shaderNormalMap.SetUniformMat4f("u_Proj", proj);
+				shaderNormalMap.SetUniform3f("u_EyePosition", camera.GetEyePosition().x, camera.GetEyePosition().y, camera.GetEyePosition().z);
+				texture.Bind();
+				shaderNormalMap.SetUniform1i("u_Texture", 0);
+				normalMap.Bind(1);
+				shaderNormalMap.SetUniform1i("u_Normal", 1);
+				plane.RenderModel(shaderNormalMap);
+				shaderNormalMap.UnBind();
+			}
 
 			/* Swap front and back buffers */
 			mainWindow.SwapBuffers();
 
 			/* Poll for and process events */
-			glfwPollEvents();
+			glfwPollEvents();	
 		}
 	}
 
 	return 0;
 }
 
-void ChangeProgramAndMaterial(int& materialNum, const bool* keys)
+void ChangeProgramAndMaterial(int& materialNum, int& shaderNum, const bool* keys)
 {
 	if (keys[GLFW_KEY_Z])
 	{
@@ -139,5 +170,15 @@ void ChangeProgramAndMaterial(int& materialNum, const bool* keys)
 	if (keys[GLFW_KEY_X])
 	{
 		materialNum = 1;
+	}
+
+	if (keys[GLFW_KEY_1])
+	{
+		shaderNum = 0;
+	}
+
+	if (keys[GLFW_KEY_2])
+	{
+		shaderNum = 1;
 	}
 }
