@@ -155,6 +155,7 @@
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
     <None Include="res\shaders\Lighting_And_NormalMap.shader" />
+    <None Include="res\shaders\Lighting_And_NormalMap_In_Tangent.shader" />
     <None Include="res\shaders\Lighting_Specular_Per_Fragment.shader" />
     <None Include="res\shaders\Lighting_Specular_Per_Vertex.shader" />
     <None Include="res\shaders\SimpleTransparent.shader" />

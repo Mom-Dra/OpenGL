@@ -14,7 +14,7 @@
 void Model::LoadModel(std::string_view fileName)
 {
 	Assimp::Importer importer;
-	const aiScene* scene{ importer.ReadFile(fileName.data(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals) };
+	const aiScene* scene{ importer.ReadFile(fileName.data(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace) };
 
 	if (!scene)
 	{
@@ -63,6 +63,12 @@ void Model::LoadMesh(aiMesh* mesh, const aiScene& scene)
 
 		// vertex normal
 		vertices.insert(vertices.end(), { mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z });
+
+		// vertex tangent
+		vertices.insert(vertices.end(), { mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z });
+
+		// vertex bitangent
+		vertices.insert(vertices.end(), { mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z });
 	}
 
 	// index info parse
@@ -83,6 +89,8 @@ void Model::LoadMesh(aiMesh* mesh, const aiScene& scene)
 	layout.push<float>(3); // vertex당 3개의 위치를 표현하는 float 데이터
 	layout.push<float>(2); // vertex당 2개의 텍스쳐 좌표를 표현하는 float 데이터
 	layout.push<float>(3); // vertex당 3개의 법선 벡터를 표현하는 float 데이터
+	layout.push<float>(3); // vertex당 3개의 tangent 벡터를 표현하는 float 데이터
+	layout.push<float>(3); // vertex당 3개의 bi-tangent 벡터를 표현하는 float 데이터
 
 	VAO->AddBuffer(*vb, layout);
 	VAOs.emplace_back(std::move(VAO));

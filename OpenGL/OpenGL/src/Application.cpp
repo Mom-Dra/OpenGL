@@ -56,10 +56,12 @@ int main(void)
 		glm::mat4 proj{ glm::perspective(glm::radians(45.0f), aspect, 1.0f, 100.0f) };
 
 		Shader shaderPerFragment{ "res/shaders/Lighting_Specular_Per_Fragment.shader" };
-		shaderPerFragment.Bind();
+		//shaderPerFragment.Bind();
 
 		Shader shaderNormalMap{ "res/shaders/Lighting_And_NormalMap.shader" };
-		shaderNormalMap.Bind();
+		//shaderNormalMap.Bind();
+
+		Shader shaderNormalMapTangent{ "res/shaders/Lighting_And_NormalMap_In_Tangent.shader" };
 
 		Texture texture{ "res/textures/diffuse.png" };
 		//texture.Bind(0); // 0번 슬롯에 바인딩
@@ -91,6 +93,9 @@ int main(void)
 		int materialNum{ 0 };
 		int shaderNum{ 0 };
 
+		float rotAngle{ 90.0f };
+		float angleIncrement{ 5.0f };
+
 		TimeManager::GetInstance().Initialize();
 
 		/* Loop until the user closes the window */
@@ -106,20 +111,31 @@ int main(void)
 			/* Render here */
 			renderer.Clear();
 
+			glm::vec3 camPosition{ camera.GetEyePosition() };
+			glm::mat4 planeModeMat{ glm::mat4{1.0} };
+
+			if (rotAngle > 110.0f)
+				angleIncrement = -5.0f;
+
+			if (rotAngle < 70.0f)
+				angleIncrement = 5.0f;
+
+			rotAngle += angleIncrement * TimeManager::GetInstance().GetDeltaTime();
+
 			if (shaderNum == 0)
 			{
 				shaderPerFragment.Bind();
 				mainLight.UseLight(shaderPerFragment);
 				materials[materialNum].UseMaterial(shaderPerFragment);
-				glm::mat4 planeModeMat{ glm::mat4{1.0} };
-
-				planeModeMat = glm::rotate(planeModeMat, 90.0f, glm::vec3{ 1.0f, 0.0f, 0.0f });
+				
+				planeModeMat = glm::rotate(planeModeMat, glm::radians(rotAngle), glm::vec3{ 1.0f, 0.0f, 0.0f });
 				planeModeMat = glm::scale(planeModeMat, glm::vec3{ 0.1f, 0.1f, 0.1f });
 
 				shaderPerFragment.SetUniformMat4f("u_Model", planeModeMat);
 				shaderPerFragment.SetUniformMat4f("u_View", camera.CalculateViewMatrix());
 				shaderPerFragment.SetUniformMat4f("u_Proj", proj);
-				shaderPerFragment.SetUniform3f("u_EyePosition", camera.GetEyePosition().x, camera.GetEyePosition().y, camera.GetEyePosition().z);
+				shaderPerFragment.SetUniform3f("u_EyePosition", camPosition.x, camPosition.y, camPosition.z);
+
 				texture.Bind();
 				shaderPerFragment.SetUniform1i("u_Texture", 0);
 				/*normalMap.Bind(1);
@@ -132,9 +148,8 @@ int main(void)
 				shaderNormalMap.Bind();
 				mainLight.UseLight(shaderNormalMap);
 				materials[materialNum].UseMaterial(shaderNormalMap);
-				glm::mat4 planeModeMat{ glm::mat4{1.0} };
 
-				planeModeMat = glm::rotate(planeModeMat, 90.0f, glm::vec3{ 1.0f, 0.0f, 0.0f });
+				planeModeMat = glm::rotate(planeModeMat, glm::radians(rotAngle), glm::vec3{ 1.0f, 0.0f, 0.0f });
 				planeModeMat = glm::scale(planeModeMat, glm::vec3{ 0.1f, 0.1f, 0.1f });
 
 				shaderNormalMap.SetUniformMat4f("u_Model", planeModeMat);
@@ -147,6 +162,25 @@ int main(void)
 				shaderNormalMap.SetUniform1i("u_Normal", 1);
 				plane.RenderModel(shaderNormalMap);
 				shaderNormalMap.UnBind();
+			}
+			else if (shaderNum == 2)
+			{
+				shaderNormalMapTangent.Bind();
+				mainLight.UseLight(shaderNormalMapTangent);
+				materials[materialNum].UseMaterial(shaderNormalMapTangent);
+
+				planeModeMat = glm::rotate(planeModeMat, glm::radians(rotAngle), glm::vec3{ 1.0f, 0.0f, 0.0f });
+				planeModeMat = glm::scale(planeModeMat, glm::vec3{ 0.1f, 0.1f, 0.1f });
+
+				shaderNormalMapTangent.SetUniformMat4f("u_Model", planeModeMat);
+				shaderNormalMapTangent.SetUniformMat4f("u_View", camera.CalculateViewMatrix());
+				shaderNormalMapTangent.SetUniform3f("u_EyePosition", camPosition.x, camPosition.y, camPosition.z);
+				texture.Bind();
+				shaderNormalMapTangent.SetUniform1i("u_Texture", 0);
+				normalMap.Bind(1);
+				shaderNormalMapTangent.SetUniform1i("u_Normal", 1);
+				plane.RenderModel(shaderNormalMapTangent);
+				shaderNormalMapTangent.UnBind();
 			}
 
 			/* Swap front and back buffers */
@@ -166,19 +200,20 @@ void ChangeProgramAndMaterial(int& materialNum, int& shaderNum, const bool* keys
 	{
 		materialNum = 0;
 	}
-
-	if (keys[GLFW_KEY_X])
+	else if (keys[GLFW_KEY_X])
 	{
 		materialNum = 1;
 	}
-
-	if (keys[GLFW_KEY_1])
+	else if (keys[GLFW_KEY_1])
 	{
 		shaderNum = 0;
 	}
-
-	if (keys[GLFW_KEY_2])
+	else if (keys[GLFW_KEY_2])
 	{
 		shaderNum = 1;
+	}
+	else if (keys[GLFW_KEY_3])
+	{
+		shaderNum = 2;
 	}
 }

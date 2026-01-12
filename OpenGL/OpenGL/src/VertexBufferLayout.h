@@ -80,6 +80,6 @@ public:
 		stride += count * VertexBufferElement::GetSizeOfType(GL_UNSIGNED_BYTE);
 	}
 
-	inline const std::vector<VertexBufferElement>& GetElement() const { return elements; }
-	inline unsigned int GetStride() const { return stride; }
+	const std::vector<VertexBufferElement>& GetElement() const noexcept { return elements; }
+	unsigned int GetStride() const noexcept { return stride; }
 };
