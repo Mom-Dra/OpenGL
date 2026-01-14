@@ -74,6 +74,11 @@ float Window::GetYChange() noexcept
 	return change;
 }
 
+void Window::ChangeViewPort(int width, int height)
+{
+	GLCall(glViewport(0, 0, width, height));
+}
+
 void Window::CreateCallback()
 {
 	// HandleKeys 함수와 HandleMouse 함수를 GLFW 윈도우의 키보드/마우스 입력 콜백
@@ -142,4 +147,9 @@ int Window::Initialize()
 	// 알파 채널 처리 방법
 	GLCall(glEnable(GL_BLEND));
 	GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
+	GLCall(glEnable(GL_CULL_FACE));
+	GLCall(glCullFace(GL_BACK));
+
+	GLCall(glEnable(GL_DEPTH_TEST));
 }

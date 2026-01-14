@@ -24,50 +24,54 @@
 #include "Model.h"
 #include "DirectionalLight.h"
 #include "Material.h"
+#include "ShadowMap.h"
 #include "Manager/TimeManager.h"
 #include "vendor/glm/glm.hpp"
 #include "vendor/glm/gtc/matrix_transform.hpp"
 
-//glm::mat4 getProjectionMatrix(float fovy, float aspect, float n, float f) {
-//	float half{ 1 / glm::tan(fovy, 2) };
-//	glm::mat2 P{};
-//
-//
-//}
-
-void ChangeProgramAndMaterial(int&, const bool*);
+void ChangeScene(int&, const bool*);
 
 int main(void)
 {
-	Window mainWindow{ 800, 600 };
+	int bufferWidth{ 1920 };
+	int bufferHeight{ 1080 };
+
+	Window mainWindow{ bufferWidth, bufferHeight };
 	mainWindow.Initialize();
 
 	{
-		glEnable(GL_CULL_FACE);
-		glEnable(GL_DEPTH_TEST);
-
 		Model teapot;
 		teapot.LoadModel("res/models/teapot.obj");
 
+		Model plane;
+		plane.LoadModel("res/models/SubdividedPlane_100.obj");
+
 		Camera camera{ glm::vec3{0.0f, 0.0f, 5.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, -90.0f, 0.0f, 5.0f, 0.5f };
 
-		// Model view projection matrix 전달
 		glm::mat4 model{ glm::translate(glm::mat4{1.0f}, glm::vec3{0.0f, 0.0f, 0.0f}) };
 		float aspect{ static_cast<float>(mainWindow.GetBufferWidth()) / mainWindow.GetBufferHeight() };
 		glm::mat4 proj{ glm::perspective(glm::radians(45.0f), aspect, 1.0f, 100.0f) };
 
 		Shader shaderPerFragment{ "res/shaders/Lighting_Specular_Per_Fragment.shader" };
 		shaderPerFragment.Bind();
+		shaderPerFragment.SetUniformMat4f("u_Projection", proj);
+		shaderPerFragment.UnBind();
+
+		// depth map을 텍스처로 활용하는 shader 작성
+		Shader simpleDepthVisualizeShader{ "res/shaders/DepthMapVisualize.shader" };
+		simpleDepthVisualizeShader.Bind();
+		simpleDepthVisualizeShader.SetUniformMat4f("u_Projection", proj);
+		simpleDepthVisualizeShader.UnBind();
+
+		// depth map을 생성하는 shader
+		Shader shaderShadowMap{ "res/shaders/DirectionalShadowMap.shader" };
 
 		Texture texture{ "res/textures/uvchecker.jpg" };
 		texture.Bind(); // 0번 슬롯에 바인딩
-		//shaderPerVertex.SetUniform1i("u_Texture", 0); // 0번 슬롯의 텍스처를 사용할 것이라는 것을 셰이더에 명시
 
 		Renderer renderer;
 		
-		//Light mainLight{ glm::vec3{1.0f, 1.0f, 1.0f}, 0.2f, glm::vec3{2.0f, -1.0f, -2.0f}, 1.0f };
-
-		DirectionalLight mainLight{ glm::vec3{1.0f, 1.0f, 1.0f}, 0.3f, glm::vec3{2.0f, -1.0f, -2.0f}, 0.3f };
+		DirectionalLight mainLight{ glm::vec3{1.0f, 1.0f, 1.0f}, 0.3f, 0.3f, 256, 256, glm::vec3{2.0f, -2.0f, 0.0f} };
 
 		std::vector<Material> materials;
 		materials.emplace_back(5.0f, 32.0f);
@@ -75,6 +79,7 @@ int main(void)
 
 		int showObjectNum{ 0 };
 		int materialNum{ 0 };
+		int sceneNum{ 0 };
 
 		TimeManager::GetInstance().Initialize();
 
@@ -86,22 +91,73 @@ int main(void)
 			camera.KeyControl(mainWindow.GetKeys());
 			camera.MouseControl(mainWindow.GetXChange(), mainWindow.GetYChange());
 
-			ChangeProgramAndMaterial(materialNum, mainWindow.GetKeys());
+			ChangeScene(sceneNum, mainWindow.GetKeys());
 
-			/* Render here */
-			renderer.Clear();
+			glm::vec3 camPosition{ camera.GetEyePosition() };
 
-			shaderPerFragment.Bind();
-			mainLight.UseLight(shaderPerFragment);
-			materials[materialNum].UseMaterial(shaderPerFragment);
+			// shadow map
+			{
+				int width{ mainLight.GetShadowMap().GetShadowWidth() };
+				int height{ mainLight.GetShadowMap().GetShadowWidth() };
 
-			shaderPerFragment.SetUniformMat4f("u_Model", model);
-			shaderPerFragment.SetUniformMat4f("u_View", camera.CalculateViewMatrix());
-			shaderPerFragment.SetUniformMat4f("u_Proj", proj);
-			shaderPerFragment.SetUniform3f("u_EyePosition", camera.GetEyePosition().x, camera.GetEyePosition().y, camera.GetEyePosition().z);
+				mainWindow.ChangeViewPort(width, height);
+				mainLight.GetShadowMap().Bind();
+				renderer.Clear();
 
-			teapot.RenderModel(shaderPerFragment);
-			shaderPerFragment.UnBind();
+				shaderShadowMap.Bind();
+				mainLight.UseLightForShadow(shaderShadowMap);
+
+				shaderShadowMap.SetUniformMat4f("u_Model", glm::scale(glm::mat4{ 1.0f }, glm::vec3{ 0.3f, 0.3f, 0.3f }));
+				teapot.RenderModel(shaderShadowMap);
+
+				glm::mat4 planeModeMat{ glm::mat4{1.0f} };
+				planeModeMat = glm::scale(planeModeMat, glm::vec3{ 0.5f, 0.5f, 0.5f });
+				planeModeMat = glm::translate(planeModeMat, glm::vec3{ 0.0f, -10.0f, 0.0f });
+				shaderShadowMap.SetUniformMat4f("u_Model", planeModeMat);
+				plane.RenderModel(shaderShadowMap);
+
+				mainLight.GetShadowMap().UnBind();
+			}
+
+			if(sceneNum == 0)
+			{
+				renderer.Clear();
+				mainWindow.ChangeViewPort(bufferWidth, bufferHeight);
+				shaderPerFragment.Bind();
+
+				mainLight.GetShadowMap().Read(1);
+				mainLight.UseLight(shaderPerFragment, 1);
+				materials[0].UseMaterial(shaderPerFragment);
+
+				shaderPerFragment.SetUniformMat4f("u_Model", glm::scale(glm::mat4{ 1.0f }, glm::vec3{ 0.3f, 0.3f, 0.3f }));
+				shaderPerFragment.SetUniformMat4f("u_View", camera.CalculateViewMatrix());
+				shaderPerFragment.SetUniform3f("u_EyePosition", camPosition.x, camPosition.y, camPosition.z);
+
+				texture.Bind(0);
+				shaderPerFragment.SetUniform1i("u_Texture", 0);
+				teapot.RenderModel(shaderPerFragment);
+
+				glm::mat4 planeModelMat{ glm::mat4{1.0f} };
+				planeModelMat = glm::scale(planeModelMat, glm::vec3{ 0.5f, 0.5f, 0.5f });
+				planeModelMat = glm::translate(planeModelMat, glm::vec3{ 0.0f, -10.0f, 0.0f });
+				shaderPerFragment.SetUniformMat4f("u_Model", planeModelMat);
+				materials[1].UseMaterial(shaderPerFragment);
+				plane.RenderModel(shaderPerFragment);
+				shaderPerFragment.UnBind();
+			}
+			else if (sceneNum == 1)
+			{
+				renderer.Clear();
+				mainWindow.ChangeViewPort(bufferWidth, bufferHeight);
+				simpleDepthVisualizeShader.Bind();
+				mainLight.GetShadowMap().Read(1);
+
+				simpleDepthVisualizeShader.SetUniformMat4f("u_Model", glm::rotate(glm::scale(glm::mat4{ 1.0f }, glm::vec3{ 0.1f, 0.1f, 0.1f }), 90.0f, glm::vec3{ 1.0f,0.0f,0.0f })); //Mat4{1.0}은 단위 행렬
+				simpleDepthVisualizeShader.SetUniformMat4f("u_View", camera.CalculateViewMatrix());
+				simpleDepthVisualizeShader.SetUniform1i("u_DepthMap", 1);
+
+				plane.RenderModel(simpleDepthVisualizeShader);
+			}
 
 			/* Swap front and back buffers */
 			mainWindow.SwapBuffers();
@@ -114,15 +170,15 @@ int main(void)
 	return 0;
 }
 
-void ChangeProgramAndMaterial(int& materialNum, const bool* keys)
+void ChangeScene(int& sceneNum, const bool* keys)
 {
-	if (keys[GLFW_KEY_Z])
+	if (keys[GLFW_KEY_1])
 	{
-		materialNum = 0;
+		sceneNum = 0;
 	}
 
-	if (keys[GLFW_KEY_X])
+	if (keys[GLFW_KEY_2])
 	{
-		materialNum = 1;
+		sceneNum = 1;
 	}
 }

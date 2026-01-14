@@ -60,11 +60,15 @@
     <ClCompile Include="src\DirectionalLight.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="src\ShadowMap.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
     <None Include="res\shaders\Lighting_Specular_Per_Fragment.shader" />
     <None Include="res\shaders\Lighting_Specular_Per_Vertex.shader" />
+    <None Include="res\shaders\DepthMapVisualize.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -179,6 +183,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="src\DirectionalLight.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ShadowMap.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

@@ -21,7 +21,7 @@ private:
 public:
 	explicit Window() noexcept;
 	explicit Window(int windowWidth, int windowHeight) noexcept;
-	~Window();
+	~Window() noexcept;
 
 	int Initialize();
 
@@ -34,6 +34,8 @@ public:
 	const bool* GetKeys() const noexcept { return keys.data(); }
 	float GetXChange() noexcept;
 	float GetYChange() noexcept;
+
+	void ChangeViewPort(int width, int height);
 
 private:
 	void CreateCallback();

@@ -136,6 +136,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ShadowMap.cpp" />
     <ClCompile Include="src\DirectionalLight.cpp" />
     <ClCompile Include="src\Material.cpp" />
     <ClCompile Include="src\Light.cpp" />
@@ -154,10 +155,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
+    <None Include="res\shaders\DepthMapVisualize.shader" />
     <None Include="res\shaders\Lighting_Specular_Per_Fragment.shader" />
     <None Include="res\shaders\Lighting_Specular_Per_Vertex.shader" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ShadowMap.h" />
     <ClInclude Include="src\DirectionalLight.h" />
     <ClInclude Include="src\Material.h" />
     <ClInclude Include="src\Light.h" />

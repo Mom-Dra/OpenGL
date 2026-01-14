@@ -1,13 +1,8 @@
 #include "Light.h"
 #include "Shader.h"
 
-Light::Light() : Light{ glm::vec3{1.0f, 1.0f, 1.0f}, 0.2f,  1.0f }
-{
-
-}
-
-Light::Light(const glm::vec3& aColor, float aIntensity, float dIntensity) : lightColor{ aColor }, ambientIntensity{ aIntensity },
-	diffuseIntensity{ dIntensity }
+Light::Light(const glm::vec3& aColor, float aIntensity, float dIntensity, const glm::mat4 lightProjection, int shadowWidth, int shadowHeight) : lightColor{ aColor }, ambientIntensity{ aIntensity },
+diffuseIntensity{ dIntensity }, lightProjection{ lightProjection }, shadowMap{ std::make_unique<ShadowMap>(shadowWidth, shadowHeight) }
 {
 
 }
