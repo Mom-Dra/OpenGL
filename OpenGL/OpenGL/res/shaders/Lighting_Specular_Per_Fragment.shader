@@ -70,7 +70,16 @@ float CalcDirectionalShadowFactor(DirectionalLight light)
 	float closest = texture(u_DirectionalShadowMap, projCoords.xy).r;
 	float current = projCoords.z;
 
-	float shadow = current > closest ? 1.0 : 0.0;
+	vec3 normal = normalize(v_Normal);;
+	vec3 lightDir = normalize(light.direction);
+	float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.055);
+
+	float shadow = current - bias > closest ? 1.0 : 0.0;
+
+	if(projCoords.z > 1.0)
+	{
+		shadow = 0.0;
+	}
 	
 	return shadow;
 }
