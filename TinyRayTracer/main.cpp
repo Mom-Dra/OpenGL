@@ -39,14 +39,14 @@ struct Sphere
 {
 	Vec3f center;
 	float radius;
-	Material material;
+	Vec3f color;
 
-	Sphere(const Vec3f& c, const float& r, const Material& mat) : center{ c }, radius{ r }, material{ mat }
-	{
+	//Sphere(const Vec3f& c, const float& r, const Material& mat) : center{ c }, radius{ r }, material{ mat }
+	//{
 
-	}
+	//}
 
-	Sphere(const Vec3f& c, const float& r) : center{ c }, radius{ r }
+	Sphere(const Vec3f& c, float r, const Vec3f& color) : center{ c }, radius{ r }, color{ color }
 	{
 
 	}
@@ -94,37 +94,37 @@ struct Sphere
 //	return k < 0 ? Vec3f(0, 0, 0) : I * eta + n * (eta*cosi - sqrtf(k));
 //}
 //
-bool sceneIntersect(const Vec3f& orig, const Vec3f& dir, const std::vector<Sphere>& scene,
-	Vec3f& hit, Vec3f& N, Material &mat)
-{
-	float sphereDist = std::numeric_limits<float>::max();
-	Vec3f fillColor{};
-	bool filled = false;
-
-	for (const Sphere& s : scene)
-	{
-		if (s.rayIntersect(orig, dir, sphereDist))
-		{
-			hit = orig + dir * sphereDist;
-			N = (hit - s.center).normalize();
-			mat = s.material;
-		}
-	}
-	
-	float checkerboard_dist = std::numeric_limits<float>::max();
-	if (fabs(dir.y) > 1e-3) {
-		float d = -(orig.y + 4) / dir.y; // the checkerboard plane has equation y = -4
-		Vec3f pt = orig + dir * d;
-		if (d > 0 && fabs(pt.x) < 10 && pt.z<-10 && pt.z>-30 && d < sphereDist) {
-			checkerboard_dist = d;
-			hit = pt;
-			N = Vec3f(0, 1, 0);
-			mat.diffuse_color = (int(.5*hit.x + 1000) + int(.5*hit.z)) & 1 ? Vec3f(1, 1, 1) : Vec3f(1, .7, .3);
-			mat.diffuse_color = mat.diffuse_color*.3;
-		}
-	}
-	return std::min(sphereDist, checkerboard_dist) < 1000;
-}
+//bool sceneIntersect(const Vec3f& orig, const Vec3f& dir, const std::vector<Sphere>& scene,
+//	Vec3f& hit, Vec3f& N, Material &mat)
+//{
+//	float sphereDist = std::numeric_limits<float>::max();
+//	Vec3f fillColor{};
+//	bool filled = false;
+//
+//	for (const Sphere& s : scene)
+//	{
+//		if (s.rayIntersect(orig, dir, sphereDist))
+//		{
+//			hit = orig + dir * sphereDist;
+//			N = (hit - s.center).normalize();
+//			mat = s.material;
+//		}
+//	}
+//	
+//	float checkerboard_dist = std::numeric_limits<float>::max();
+//	if (fabs(dir.y) > 1e-3) {
+//		float d = -(orig.y + 4) / dir.y; // the checkerboard plane has equation y = -4
+//		Vec3f pt = orig + dir * d;
+//		if (d > 0 && fabs(pt.x) < 10 && pt.z<-10 && pt.z>-30 && d < sphereDist) {
+//			checkerboard_dist = d;
+//			hit = pt;
+//			N = Vec3f(0, 1, 0);
+//			mat.diffuse_color = (int(.5*hit.x + 1000) + int(.5*hit.z)) & 1 ? Vec3f(1, 1, 1) : Vec3f(1, .7, .3);
+//			mat.diffuse_color = mat.diffuse_color*.3;
+//		}
+//	}
+//	return std::min(sphereDist, checkerboard_dist) < 1000;
+//}
 
 
 //
@@ -237,14 +237,34 @@ void saveAsPpm(std::string_view fileName, int width, int height, const std::vect
 	ofs.close();
 }
 
-Vec3f castRay(const Vec3f& orig, const Vec3f& dir, const Sphere& sphere)
+//Vec3f castRay(const Vec3f& orig, const Vec3f& dir, const Sphere& sphere)
+//{
+//	float sphereDist{ std::numeric_limits<float>::max() };
+//
+//	if (!sphere.rayIntersect(orig, dir, sphereDist))
+//		return Vec3f{ 0.0f, 1.0f, 0.0f };
+//
+//	return Vec3f{ 0.0f, 0.0f, 1.0f };
+//}
+//
+
+Vec3f castRay(const Vec3f& orig, const Vec3f& dir, const std::vector<Sphere>& scene)
 {
 	float sphereDist{ std::numeric_limits<float>::max() };
+	Vec3f fillColor{};
+	bool filled{ false };
 
-	if (!sphere.rayIntersect(orig, dir, sphereDist))
-		return Vec3f{ 0.0f, 1.0f, 0.0f };
-
-	return Vec3f{ 0.0f, 0.0f, 1.0f };
+	for (const Sphere& s : scene)
+	{
+		if(s.rayIntersect(orig, dir, sphereDist))
+		{
+			fillColor = s.color;
+			filled = true;
+		}
+	}
+	
+	if (!filled) return Vec3f{ 0.2f, 0.7f, 0.8f };
+	else return fillColor;
 }
 
 void render()
@@ -254,7 +274,14 @@ void render()
 	constexpr int fov{ static_cast<int>(3.14f / 2.0f) };
 	std::vector<Vec3f> frameBuffer(width * height);
 
-	Sphere sphere{ Vec3f{0.0f, 0.0f, -5.0f}, 1.0f };
+	Vec3f ivory{ 0.4f, 0.4f, 0.3f };
+	Vec3f redRubber{ 0.3f, 0.1f, 0.1f };
+
+	std::vector<Sphere> scene;
+	scene.emplace_back(Vec3f{ -3.0f, 0.0f, -16.0f }, 2.0f, ivory);
+	scene.emplace_back(Vec3f{ -1.0f, -1.5f, -12.0f }, 2.0f, redRubber);
+	scene.emplace_back(Vec3f{ 1.5f, -0.5f, -18.0f }, 3.0f, redRubber);
+	scene.emplace_back(Vec3f{ 7.0f, 5.0f, -18.0f }, 4.0f, ivory);
 
 	for (size_t j{ 0 }; j < height; ++j)
 	{
@@ -263,7 +290,7 @@ void render()
 			float x{ (2 * (i + 0.5f) / width - 1) * tan(fov / 2.0f) * width / height };
 			float y{ -(2 * (j + 0.5f) / height - 1) * tan(fov / 2.0f) };
 			Vec3f dir{ Vec3f(x, y, -1).normalize() };
-			frameBuffer[i + j * width] = castRay(Vec3f{ 0, 0, 0 }, dir, sphere);
+			frameBuffer[i + j * width] = castRay(Vec3f{ 0.0f, 0.0f, 0.0f }, dir, scene);
 		}
 	}
 
