@@ -203,6 +203,19 @@ struct Sphere
 //	ofs.close();
 //}
 
+float calcLighting(const std::vector<Light>& lights, const Vec3f& point, const Vec3f& normal)
+{
+	float diffuseIntensity{ 0.0f };
+
+	for (const Light& light : lights)
+	{
+		Vec3f lightDir{ (light.position - point).normalize() };
+		diffuseIntensity += light.intensity * std::max(0.0f, lightDir * normal);
+	}
+
+	return diffuseIntensity;
+}
+
 void saveAsPng(std::string_view fileName, int width, int height, const std::vector<Vec3f>& frameBuffer)
 {
 	std::vector<unsigned char> pixels;
@@ -213,8 +226,8 @@ void saveAsPng(std::string_view fileName, int width, int height, const std::vect
 		for (size_t j{ 0 }; j < 3; ++j)
 		{
 			float val{ frameBuffer[i][j] };
-			unsigned char byte_val{ static_cast<unsigned char>(255 * std::max(0.0f, std::min(1.0f, val))) };
-			pixels.push_back(byte_val);
+			unsigned char byteVal{ static_cast<unsigned char>(255 * std::max(0.0f, std::min(1.0f, val))) };
+			pixels.push_back(byteVal);
 		}
 	}
 
@@ -248,7 +261,7 @@ void saveAsPpm(std::string_view fileName, int width, int height, const std::vect
 //}
 //
 
-Vec3f castRay(const Vec3f& orig, const Vec3f& dir, const std::vector<Sphere>& scene)
+Vec3f castRay(const Vec3f& orig, const Vec3f& dir, const std::vector<Sphere>& scene, const std::vector<Light>& lights)
 {
 	float sphereDist{ std::numeric_limits<float>::max() };
 	Vec3f fillColor{};
@@ -258,7 +271,9 @@ Vec3f castRay(const Vec3f& orig, const Vec3f& dir, const std::vector<Sphere>& sc
 	{
 		if(s.rayIntersect(orig, dir, sphereDist))
 		{
-			fillColor = s.color;
+			Vec3f point{ orig + dir * sphereDist };
+			float diffuseIntensity{ calcLighting(lights, point, (point - s.center).normalize()) };
+			fillColor = s.color * diffuseIntensity;
 			filled = true;
 		}
 	}
@@ -279,9 +294,12 @@ void render()
 
 	std::vector<Sphere> scene;
 	scene.emplace_back(Vec3f{ -3.0f, 0.0f, -16.0f }, 2.0f, ivory);
-	scene.emplace_back(Vec3f{ -1.0f, -1.5f, -12.0f }, 2.0f, redRubber);
+	scene.emplace_back(Vec3f{ -1.0f, -1.5f, 12.0f }, 2.0f, redRubber);
 	scene.emplace_back(Vec3f{ 1.5f, -0.5f, -18.0f }, 3.0f, redRubber);
 	scene.emplace_back(Vec3f{ 7.0f, 5.0f, -18.0f }, 4.0f, ivory);
+
+	std::vector<Light> lights;
+	lights.emplace_back(Vec3f(-20.0f, 20.0f, 20.0f), 3.0f);
 
 	for (size_t j{ 0 }; j < height; ++j)
 	{
@@ -289,13 +307,16 @@ void render()
 		{
 			float x{ (2 * (i + 0.5f) / width - 1) * tan(fov / 2.0f) * width / height };
 			float y{ -(2 * (j + 0.5f) / height - 1) * tan(fov / 2.0f) };
-			Vec3f dir{ Vec3f(x, y, -1).normalize() };
-			frameBuffer[i + j * width] = castRay(Vec3f{ 0.0f, 0.0f, 0.0f }, dir, scene);
+
+			//std::cout << "x, y" << x << ", " << y << '\n';
+			Vec3f dir{ Vec3f{ x, y, -1.0f }.normalize() };
+			frameBuffer[i + j * width] = castRay(Vec3f{ 0.0f, 0.0f, 0.0f }, dir, scene, lights);
 		}
 	}
 
 	saveAsPng("./out.png", width, height, frameBuffer);
 }
+
 
 int main() {
 
