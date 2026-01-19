@@ -13,15 +13,12 @@
 #include "src/stb_image/stb_image_write.h"
 
 struct Material {
-	Material(const Vec2f& a, const Vec3f& color, const float& spec) : albedo{ a }, diffuse_color{ color }, specular_exponent{ spec } {}
-	Material() : albedo{ 1, 0 } {}
-	//Material(const Material& other) : albedo{ other.albedo }, diffuse_color{ other.diffuse_color }, specular_exponent{ other.specular_exponent }
-	//{
-	//}
-
 	Vec2f albedo;
 	Vec3f diffuse_color;
 	float specular_exponent;
+
+	Material(const Vec2f& a, const Vec3f& color, const float& spec) : albedo{ a }, diffuse_color{ color }, specular_exponent{ spec } {}
+	Material() : albedo{ 1, 0 } {}
 };
 
 struct Light
@@ -273,26 +270,26 @@ bool sceneIntersect(const Vec3f& orig, const Vec3f& dir, const std::vector<Spher
 	return sphereDist < 1000.0f;
 }
 
-void calcLighting(const std::vector<Light>& lights, const Vec3f& point, const Vec3f& normal, float& dIntensity, float& sIntensity)
-{
-	float diffuseIntensity{ 0.0f };
-	float specularIntensity{ 0.0f };
-
-	Vec3f view{ point - Vec3f{0.0f, 0.0f, 0.0f} };
-	view = view.normalize();
-
-	for (const Light& light : lights)
-	{
-		Vec3f lightDir{ (light.position - point).normalize() };
-		diffuseIntensity += light.intensity * std::max(0.0f, lightDir * normal);
-
-		Vec3f r{ reflect(lightDir, normal).normalize() };
-		specularIntensity += light.intensity * std::powf(std::max(0.0f, r * view), 50.0f);
-	}
-
-	dIntensity = diffuseIntensity;
-	sIntensity = specularIntensity;
-}
+//void calcLighting(const std::vector<Light>& lights, const Vec3f& point, const Vec3f& normal, float& dIntensity, float& sIntensity)
+//{
+//	float diffuseIntensity{ 0.0f };
+//	float specularIntensity{ 0.0f };
+//
+//	Vec3f view{ point - Vec3f{0.0f, 0.0f, 0.0f} };
+//	view = view.normalize();
+//
+//	for (const Light& light : lights)
+//	{
+//		Vec3f lightDir{ (light.position - point).normalize() };
+//		diffuseIntensity += light.intensity * std::max(0.0f, lightDir * normal);
+//
+//		Vec3f r{ reflect(lightDir, normal).normalize() };
+//		specularIntensity += light.intensity * std::powf(std::max(0.0f, r * view), 50.0f);
+//	}
+//
+//	dIntensity = diffuseIntensity;
+//	sIntensity = specularIntensity;
+//}
 
 Vec3f castRay(const Vec3f& orig, const Vec3f& dir, const std::vector<Sphere>& scene, const std::vector<Light>& lights)
 {
@@ -309,6 +306,16 @@ Vec3f castRay(const Vec3f& orig, const Vec3f& dir, const std::vector<Sphere>& sc
 	for (const Light& light : lights)
 	{
 		Vec3f lightDir{ (light.position - point).normalize() };
+		float lightDist{ (light.position - point).norm() };
+
+		Vec3f shadowPoint, shadowNormal;
+		Material tempMaterial;
+		Vec3f shadowOrig{ lightDir * N < 0 ? point - N * 1e-3 : point + N * 1e-3 };
+		Vec3f adjLightDir{ (light.position - shadowOrig).normalize() };
+
+		if (sceneIntersect(shadowOrig, adjLightDir, scene, shadowPoint, shadowNormal, tempMaterial)
+			&& lightDist > (shadowPoint - shadowOrig).norm())
+			continue;
 
 		diffuseLightIntensity += light.intensity * std::max(0.0f, lightDir * N);
 		specularLightIntensity += powf(std::max(0.0f, reflect(lightDir, N) * dir), mat.specular_exponent) * light.intensity;
@@ -381,4 +388,4 @@ int main() {
 	render(scene, lights);
 
 	return 0;
-}
+}	
