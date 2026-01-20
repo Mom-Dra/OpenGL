@@ -13,12 +13,12 @@
 #include "src/stb_image/stb_image_write.h"
 
 struct Material {
-	Vec2f albedo;
+	Vec3f albedo;
 	Vec3f diffuse_color;
 	float specular_exponent;
 
-	Material(const Vec2f& a, const Vec3f& color, const float& spec) : albedo{ a }, diffuse_color{ color }, specular_exponent{ spec } {}
-	Material() : albedo{ 1, 0 } {}
+	Material(const Vec3f& a, const Vec3f& color, const float& spec) : albedo{ a }, diffuse_color{ color }, specular_exponent{ spec } {}
+	Material() : albedo{ 1, 0, 0 } {}
 };
 
 struct Light
@@ -291,37 +291,45 @@ bool sceneIntersect(const Vec3f& orig, const Vec3f& dir, const std::vector<Spher
 //	sIntensity = specularIntensity;
 //}
 
-Vec3f castRay(const Vec3f& orig, const Vec3f& dir, const std::vector<Sphere>& scene, const std::vector<Light>& lights)
+Vec3f castRay(const Vec3f& orig, const Vec3f& dir, const std::vector<Sphere>& scene, const std::vector<Light>& lights, size_t depth = 0)
 {
 	Vec3f point, N;
 	Material mat;
 
-	if (!sceneIntersect(orig, dir, scene, point, N, mat))
+	if (depth > 1 || !sceneIntersect(orig, dir, scene, point, N, mat))
 	{
-		return Vec3f{ 0.2f, 0.7f, 0.8f };
+		return Vec3f(0.2, 0.7, 0.8);
 	}
 
-	float diffuseLightIntensity{ 0.0f }, specularLightIntensity{ 0.0f };
-	
+	Vec3f reflect_dir = reflect(dir, N).normalize();
+	Vec3f reflect_orig = reflect_dir * N < 0 ? point - N * 1e-3 : point + N * 1e-3;
+	//부딪힌 점의 색상은 그 점에서 reflection 방향으로 다시 빛을 쏘아 intersection한 곳의 색상.
+	//그 intersection의 색상은 다시 reflection 방향으로 빛을 쏘아 계산. depth는 이렇게 몇번까지 intersection 계산을 한 것인지 제어함
+	Vec3f reflect_color = castRay(reflect_orig, reflect_dir, scene, lights, depth + 1);
+
+	float diffuse_light_intensity = 0, specular_light_intensity = 0;
 	for (const Light& light : lights)
 	{
-		Vec3f lightDir{ (light.position - point).normalize() };
-		float lightDist{ (light.position - point).norm() };
+		Vec3f light_dir = (light.position - point).normalize();
+		float light_dist = (light.position - point).norm();
 
-		Vec3f shadowPoint, shadowNormal;
+		Vec3f shadow_point, shadow_normal;
 		Material tempMaterial;
-		Vec3f shadowOrig{ lightDir * N < 0 ? point - N * 1e-3 : point + N * 1e-3 };
-		Vec3f adjLightDir{ (light.position - shadowOrig).normalize() };
-
-		if (sceneIntersect(shadowOrig, adjLightDir, scene, shadowPoint, shadowNormal, tempMaterial)
-			&& lightDist > (shadowPoint - shadowOrig).norm())
+		Vec3f shadow_orig = light_dir * N < 0 ? point - N * 1e-3 : point + N * 1e-3;
+		Vec3f adj_light_dir = (light.position - shadow_orig).normalize();
+		if (sceneIntersect(shadow_orig, adj_light_dir, scene, shadow_point, shadow_normal, tempMaterial)
+			&& light_dist > (shadow_point - shadow_orig).norm())
+		{
 			continue;
+		}
 
-		diffuseLightIntensity += light.intensity * std::max(0.0f, lightDir * N);
-		specularLightIntensity += powf(std::max(0.0f, reflect(lightDir, N) * dir), mat.specular_exponent) * light.intensity;
+		diffuse_light_intensity += light.intensity * std::max(0.0f, light_dir * N);
+		specular_light_intensity += powf(std::max(0.0f, reflect(light_dir, N) * dir), mat.specular_exponent) * light.intensity;
 	}
 
-	return mat.diffuse_color * diffuseLightIntensity * mat.albedo[0] + Vec3f{ 1.0f, 1.0f, 1.0f } *specularLightIntensity * mat.albedo[1];
+	return mat.diffuse_color * diffuse_light_intensity * mat.albedo[0]
+		+ Vec3f(1., 1., 1.) * specular_light_intensity * mat.albedo[1]
+		+ reflect_color * mat.albedo[2];
 }
 
 void render(const std::vector<Sphere>& scene, const std::vector<Light>& lights)
@@ -371,19 +379,20 @@ int main() {
 
 	//render(scene, lights);
 
-	Material ivory(Vec2f(0.6, 0.3), Vec3f(0.4, 0.4, 0.3), 50.);
-	Material red_rubber(Vec2f(0.9, 0.1), Vec3f(0.3, 0.1, 0.1), 10.);
+	Material ivory{ Vec3f{ 0.6f, 0.3f, 0.1f }, Vec3f{ 0.4f, 0.4f, 0.3f }, 50.f };
+	Material red_rubber{ Vec3f{ 0.9f, 0.1f, 0.0f }, Vec3f{ 0.3f, 0.1f, 0.1f }, 10.0f };
+	Material mirror{ Vec3f{ 0.0f, 10.0f, 0.8f }, Vec3f{ 1.0f, 1.0f, 1.0f }, 1425.0f };
 
 	std::vector<Sphere> scene;
-	scene.emplace_back(Vec3f(-3, 0, -16), 2, ivory);
-	scene.emplace_back(Vec3f(-1.0, -1.5, -12), 2, red_rubber);
-	scene.emplace_back(Vec3f(1.5, -0.5, -18), 3, red_rubber);
-	scene.emplace_back(Vec3f(7, 5, -18), 4, ivory);
+	scene.emplace_back(Vec3f{ -3.0f, 0.0f, -16.0f }, 2.0f, ivory);
+	scene.emplace_back(Vec3f{ -1.0f, -1.5f, -12.0f }, 2.0f, mirror);
+	scene.emplace_back(Vec3f{ 1.5f, -0.5f, -18.0f }, 3.0f, red_rubber);
+	scene.emplace_back(Vec3f{ 7.0f, 5.0f, -18.0f }, 4.0f, mirror);
 
 	std::vector<Light> lights;
-	lights.emplace_back(Vec3f(-20, 20, 20), 1.5f);
-	lights.emplace_back(Vec3f(30, 50, -25), 1.8);
-	lights.emplace_back(Vec3f(30, 20, 30), 1.7);
+	lights.emplace_back(Vec3f{ -20.0f, 20.0f, 20.0f }, 1.5f);
+	lights.emplace_back(Vec3f{ 30.0f, 50.0f, -25.0f }, 1.8f);
+	lights.emplace_back(Vec3f{ 30.0f, 20.0f, 30.0f }, 1.7f);
 
 	render(scene, lights);
 
