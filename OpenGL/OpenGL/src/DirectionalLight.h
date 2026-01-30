@@ -18,5 +18,7 @@ public:
 	void UseLight(Shader& shader, int slot);
 	void UseLightForShadow(Shader& shader);
 
+	void SetDirection(const glm::vec3& dir);
+	
 	glm::mat4 CalculateLightTransform();
 };

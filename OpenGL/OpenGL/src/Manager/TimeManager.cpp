@@ -18,6 +18,11 @@ float TimeManager::GetDeltaTime() const noexcept
 	return static_cast<float>(deltaTime);
 }
 
+float TimeManager::GetNow() const noexcept
+{
+	return glfwGetTime();
+}
+
 void TimeManager::Update() noexcept
 {
 	double currentTime{ glfwGetTime() };

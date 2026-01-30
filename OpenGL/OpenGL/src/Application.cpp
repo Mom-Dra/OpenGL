@@ -28,6 +28,8 @@
 #include "Manager/TimeManager.h"
 #include "vendor/glm/glm.hpp"
 #include "vendor/glm/gtc/matrix_transform.hpp"
+//#include "vendor/glm/trigonometric.hpp"
+//#include "vendor/glm/gtc/constants.hpp"
 
 void ChangeScene(int&, const bool*);
 
@@ -46,13 +48,13 @@ int main(void)
 		Model plane;
 		plane.LoadModel("res/models/SubdividedPlane_100.obj");
 
-		Camera camera{ glm::vec3{0.0f, 0.0f, 5.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, -90.0f, 0.0f, 5.0f, 0.5f };
+		Camera camera{ glm::vec3{0.0f, 0.0f, 15.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, -90.0f, 0.0f, 5.0f, 0.5f };
 
 		glm::mat4 model{ glm::translate(glm::mat4{1.0f}, glm::vec3{0.0f, 0.0f, 0.0f}) };
 		float aspect{ static_cast<float>(mainWindow.GetBufferWidth()) / mainWindow.GetBufferHeight() };
 		glm::mat4 proj{ glm::perspective(glm::radians(45.0f), aspect, 1.0f, 100.0f) };
 
-		Shader shaderPerFragment{ "res/shaders/Lighting_Specular_Per_Fragment.shader" };
+		Shader shaderPerFragment{ "res/shaders/ToonShading.shader" };
 		shaderPerFragment.Bind();
 		shaderPerFragment.SetUniformMat4f("u_Projection", proj);
 		shaderPerFragment.UnBind();
@@ -67,11 +69,14 @@ int main(void)
 		Shader shaderShadowMap{ "res/shaders/DirectionalShadowMap.shader" };
 
 		Texture texture{ "res/textures/uvchecker.jpg" };
-		texture.Bind(); // 0번 슬롯에 바인딩
+		//texture.Bind(); // 0번 슬롯에 바인딩
+
+		Texture toonLutTexture{ "res/textures/UtilToonGradient.tga" };
+		//Texture toonLutTexture{ "res/textures/TwoToneGradient.tga" };
 
 		Renderer renderer;
 		
-		DirectionalLight mainLight{ glm::vec3{1.0f, 1.0f, 1.0f}, 0.3f, 0.3f, 256, 256, glm::vec3{2.0f, -2.0f, 0.0f} };
+		DirectionalLight mainLight{ glm::vec3{1.0f, 1.0f, 1.0f}, 0.1f, 1.0f, 1024, 1024, glm::vec3{2.0f, -2.0f, 0.0f} };
 
 		std::vector<Material> materials;
 		materials.emplace_back(5.0f, 32.0f);
@@ -94,6 +99,9 @@ int main(void)
 			ChangeScene(sceneNum, mainWindow.GetKeys());
 
 			glm::vec3 camPosition{ camera.GetEyePosition() };
+
+			float now{ TimeManager::GetInstance().GetNow() };
+			mainLight.SetDirection(glm::vec3{ glm::cos(now), -1.0f, glm::sin(now) });
 
 			// shadow map
 			{
@@ -135,15 +143,18 @@ int main(void)
 
 				texture.Bind(0);
 				shaderPerFragment.SetUniform1i("u_Texture", 0);
+
+				toonLutTexture.Bind(1);
+				shaderPerFragment.SetUniform1i("u_ToonLut", 1);
 				teapot.RenderModel(shaderPerFragment);
 
-				glm::mat4 planeModelMat{ glm::mat4{1.0f} };
+				/*glm::mat4 planeModelMat{ glm::mat4{1.0f} };
 				planeModelMat = glm::scale(planeModelMat, glm::vec3{ 0.5f, 0.5f, 0.5f });
 				planeModelMat = glm::translate(planeModelMat, glm::vec3{ 0.0f, -10.0f, 0.0f });
 				shaderPerFragment.SetUniformMat4f("u_Model", planeModelMat);
 				materials[1].UseMaterial(shaderPerFragment);
 				plane.RenderModel(shaderPerFragment);
-				shaderPerFragment.UnBind();
+				shaderPerFragment.UnBind();*/
 			}
 			else if (sceneNum == 1)
 			{

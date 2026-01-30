@@ -14,6 +14,7 @@ public:
 	void Initialize() noexcept;
 
 	float GetDeltaTime() const noexcept;
+	float GetNow() const noexcept;
 	void Update() noexcept;
 
 private:
