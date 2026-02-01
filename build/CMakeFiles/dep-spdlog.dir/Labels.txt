@@ -1,0 +1,14 @@
+# Target labels
+ dep-spdlog
+# Source files and their labels
+C:/Users/HighTech/Desktop/OpenGL/build/CMakeFiles/dep-spdlog
+C:/Users/HighTech/Desktop/OpenGL/build/CMakeFiles/dep-spdlog.rule
+C:/Users/HighTech/Desktop/OpenGL/build/CMakeFiles/dep-spdlog-complete.rule
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-build.rule
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-configure.rule
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-download.rule
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-install.rule
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-mkdir.rule
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-patch.rule
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-test.rule
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-update.rule

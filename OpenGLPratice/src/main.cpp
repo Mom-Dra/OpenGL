@@ -1,9 +1,9 @@
 #include <iostream>
 #include <vector>
+#include <spdlog/spdlog.h>
 
 int main()
 {
-    std::cout << "Hello World\n";
-
+    SPDLOG_INFO("hello, opengl");
     return 0;
 }

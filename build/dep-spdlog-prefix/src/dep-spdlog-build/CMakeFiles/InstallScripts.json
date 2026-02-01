@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/cmake_install.cmake",
+		"C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/example/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

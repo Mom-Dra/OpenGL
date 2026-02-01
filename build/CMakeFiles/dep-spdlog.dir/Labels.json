@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/Users/HighTech/Desktop/OpenGL/build/CMakeFiles/dep-spdlog"
+		},
+		{
+			"file" : "C:/Users/HighTech/Desktop/OpenGL/build/CMakeFiles/dep-spdlog.rule"
+		},
+		{
+			"file" : "C:/Users/HighTech/Desktop/OpenGL/build/CMakeFiles/dep-spdlog-complete.rule"
+		},
+		{
+			"file" : "C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-build.rule"
+		},
+		{
+			"file" : "C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-configure.rule"
+		},
+		{
+			"file" : "C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-download.rule"
+		},
+		{
+			"file" : "C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-install.rule"
+		},
+		{
+			"file" : "C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-patch.rule"
+		},
+		{
+			"file" : "C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-test.rule"
+		},
+		{
+			"file" : "C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"dep-spdlog"
+		],
+		"name" : "dep-spdlog"
+	}
+}

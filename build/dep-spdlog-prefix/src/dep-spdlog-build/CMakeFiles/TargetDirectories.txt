@@ -1,0 +1,16 @@
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/CMakeFiles/spdlog.dir
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/CMakeFiles/package.dir
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/CMakeFiles/package_source.dir
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/CMakeFiles/edit_cache.dir
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/CMakeFiles/rebuild_cache.dir
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/CMakeFiles/list_install_components.dir
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/CMakeFiles/install.dir
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/CMakeFiles/install/local.dir
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/example/CMakeFiles/example.dir
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/example/CMakeFiles/package.dir
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/example/CMakeFiles/package_source.dir
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/example/CMakeFiles/edit_cache.dir
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/example/CMakeFiles/rebuild_cache.dir
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/example/CMakeFiles/list_install_components.dir
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/example/CMakeFiles/install.dir
+C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/example/CMakeFiles/install/local.dir

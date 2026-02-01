@@ -1,0 +1,23 @@
+# ninja log v6
+5	42	7916548014587449	dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-mkdir	a1d70791d2043560
+5	42	7916548014587449	C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-mkdir	a1d70791d2043560
+42	1774	7916548031906003	dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-download	8be34b7db28651d2
+42	1774	7916548031906003	C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-download	8be34b7db28651d2
+1774	1811	7916548032267861	dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-update	6fdc4dde4ea823bc
+1774	1811	7916548032267861	C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-update	6fdc4dde4ea823bc
+1812	1848	7916548032625937	dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-patch	36f1173c3c067223
+1812	1848	7916548032625937	C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-patch	36f1173c3c067223
+1848	2877	7916548042930846	dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-configure	f821bb77f80c7053
+1848	2877	7916548042930846	C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-configure	f821bb77f80c7053
+2878	4568	7916548059811836	dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-build	ae13bf5896c170e6
+2878	4568	7916548059811836	C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-build	ae13bf5896c170e6
+4568	4711	7916548061263066	dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-install	6d5652c061024985
+4568	4711	7916548061263066	C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-install	6d5652c061024985
+4711	4747	7916548061630568	dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-test	b5a20b8098c7dcd1
+4711	4747	7916548061630568	C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-test	b5a20b8098c7dcd1
+4747	4804	7916548062190014	CMakeFiles/dep-spdlog-complete	9566b0ae1861f0e1
+4747	4804	7916548062190014	dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-done	9566b0ae1861f0e1
+4747	4804	7916548062190014	C:/Users/HighTech/Desktop/OpenGL/build/CMakeFiles/dep-spdlog-complete	9566b0ae1861f0e1
+4747	4804	7916548062190014	C:/Users/HighTech/Desktop/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-stamp/dep-spdlog-done	9566b0ae1861f0e1
+4804	6205	7916548062234754	CMakeFiles/cmake_project_example.dir/src/main.cpp.obj	392cbcf9ee70e11c
+6206	6444	7916548076257799	cmake_project_example.exe	80f60ad3a51664c7

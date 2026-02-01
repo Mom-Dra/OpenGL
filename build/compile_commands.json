@@ -1,0 +1,8 @@
+[
+{
+  "directory": "C:/Users/HighTech/Desktop/OpenGL/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\HighTech\\Desktop\\OpenGL\\build\\install\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /utf-8 /FoCMakeFiles\\cmake_project_example.dir\\src\\main.cpp.obj /FdCMakeFiles\\cmake_project_example.dir\\ /FS -c C:\\Users\\HighTech\\Desktop\\OpenGL\\OpenGLPratice\\src\\main.cpp",
+  "file": "C:/Users/HighTech/Desktop/OpenGL/OpenGLPratice/src/main.cpp",
+  "output": "C:/Users/HighTech/Desktop/OpenGL/build/CMakeFiles/cmake_project_example.dir/src/main.cpp.obj"
+}
+]
