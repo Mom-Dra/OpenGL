@@ -5,8 +5,7 @@
 #include <iostream>
 #include <vector>
 
-#include "common.h"
-#include "shader.h"
+#include "context.h"
 
 void OnFrameBufferSizeChange(GLFWwindow *window, int width, int height)
 {
@@ -67,11 +66,21 @@ int main()
     auto glVersion{glGetString(GL_VERSION)};
     SPDLOG_INFO("OpenGL context version: {}", reinterpret_cast<const char *>(glVersion));
 
-    auto vertexShader{Shader::CreateFromFile("./OpenGLPratice/shader/simple.vs", GL_VERTEX_SHADER)};
-    auto fragmentShader{Shader::CreateFromFile("./OpenGLPratice/shader/simple.fs", GL_FRAGMENT_SHADER)};
+    auto context{Context::Create()};
+    if (!context)
+    {
+        SPDLOG_ERROR("failed to create context");
+        glfwTerminate();
+        return -1;
+    }
 
-    SPDLOG_INFO("vertex shader id: {}", vertexShader->Get());
-    SPDLOG_INFO("fragment shader id: {}", fragmentShader->Get());
+    // ShaderPtr vertexShader{Shader::CreateFromFile("./OpenGLPratice/shader/simple.vs", GL_VERTEX_SHADER)};
+    // ShaderPtr fragmentShader{Shader::CreateFromFile("./OpenGLPratice/shader/simple.fs", GL_FRAGMENT_SHADER)};
+    // SPDLOG_INFO("vertex shader id: {}", vertexShader->Get());
+    // SPDLOG_INFO("fragment shader id: {}", fragmentShader->Get());
+
+    // auto program{Program::Create({fragmentShader, vertexShader})};
+    // SPDLOG_INFO("program id: {}", program->Get());
 
     OnFrameBufferSizeChange(window, WINDOW_WIDTH, WINDOW_HEIGHT);
     glfwSetFramebufferSizeCallback(window, OnFrameBufferSizeChange);
@@ -80,12 +89,11 @@ int main()
     SPDLOG_INFO("Start main loop");
     while (!glfwWindowShouldClose(window))
     {
-        glfwPollEvents();
-
-        glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        context->Render();
         glfwSwapBuffers(window);
+        glfwPollEvents();
     }
+    context.reset();
 
     glfwTerminate();
     return 0;

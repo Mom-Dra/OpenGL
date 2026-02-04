@@ -31,17 +31,21 @@ bool Shader::LoadFile(const std::string &fileName, GLenum shaderType)
     glShaderSource(shader, 1, (const GLchar *const *)&codePtr, &codeLength);
     glCompileShader(shader);
 
-    int success{0};
+    int32_t success{0};
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
     if (success == 0)
     {
-        std::string infoLog;
-        infoLog.resize(1024);
+        int32_t logLength{0};
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
 
-        glGetShaderInfoLog(shader, 1024, nullptr, infoLog.data());
+        std::string infoLog;
+        infoLog.resize(logLength);
+
+        glGetShaderInfoLog(shader, logLength, nullptr, infoLog.data());
         SPDLOG_ERROR("failed to compile shader: \"{}\"", fileName);
         SPDLOG_ERROR("reason: {}", infoLog);
+
         return false;
     }
 
