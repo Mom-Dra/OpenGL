@@ -1,1 +1,1 @@
-cmd='C:/Program Files/CMake/bin/cmake.exe;-DCMAKE_INSTALL_PREFIX=C:/Users/HuiYong/Desktop/스터디/OpenGL/build/install;-GVisual Studio 17 2022;-Ax64;-Thost=x64;-DCMAKE_GENERATOR_INSTANCE:INTERNAL=C:/Program Files/Microsoft Visual Studio/2022/Professional;<SOURCE_DIR><SOURCE_SUBDIR>'
+cmd='C:/Program Files/CMake/bin/cmake.exe;-DCMAKE_INSTALL_PREFIX=C:/Users/HuiYong/Desktop/Study/OpenGL/build/install;-GVisual Studio 17 2022;-Ax64;-Thost=x64;-DCMAKE_GENERATOR_INSTANCE:INTERNAL=C:/Program Files/Microsoft Visual Studio/2022/Professional;<SOURCE_DIR><SOURCE_SUBDIR>'

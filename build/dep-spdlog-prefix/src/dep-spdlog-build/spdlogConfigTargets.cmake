@@ -56,7 +56,7 @@ add_library(spdlog::spdlog STATIC IMPORTED)
 set_target_properties(spdlog::spdlog PROPERTIES
   INTERFACE_COMPILE_DEFINITIONS "SPDLOG_COMPILED_LIB"
   INTERFACE_COMPILE_OPTIONS "\$<\$<AND:\$<COMPILE_LANGUAGE:CXX>,\$<CXX_COMPILER_ID:MSVC>>:/utf-8>"
-  INTERFACE_INCLUDE_DIRECTORIES "C:/Users/HuiYong/Desktop/스터디/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog/include"
+  INTERFACE_INCLUDE_DIRECTORIES "C:/Users/HuiYong/Desktop/Study/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog/include"
   INTERFACE_LINK_LIBRARIES "Threads::Threads"
 )
 
@@ -66,7 +66,7 @@ add_library(spdlog::spdlog_header_only INTERFACE IMPORTED)
 set_target_properties(spdlog::spdlog_header_only PROPERTIES
   INTERFACE_COMPILE_DEFINITIONS "SPDLOG_FWRITE_UNLOCKED"
   INTERFACE_COMPILE_OPTIONS "/Zc:__cplusplus;\$<\$<AND:\$<COMPILE_LANGUAGE:CXX>,\$<CXX_COMPILER_ID:MSVC>>:/utf-8>"
-  INTERFACE_INCLUDE_DIRECTORIES "C:/Users/HuiYong/Desktop/스터디/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog/include"
+  INTERFACE_INCLUDE_DIRECTORIES "C:/Users/HuiYong/Desktop/Study/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog/include"
   INTERFACE_LINK_LIBRARIES "Threads::Threads"
 )
 
@@ -74,28 +74,28 @@ set_target_properties(spdlog::spdlog_header_only PROPERTIES
 set_property(TARGET spdlog::spdlog APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(spdlog::spdlog PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
-  IMPORTED_LOCATION_DEBUG "C:/Users/HuiYong/Desktop/스터디/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/Debug/spdlogd.lib"
+  IMPORTED_LOCATION_DEBUG "C:/Users/HuiYong/Desktop/Study/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/Debug/spdlogd.lib"
   )
 
 # Import target "spdlog::spdlog" for configuration "Release"
 set_property(TARGET spdlog::spdlog APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
 set_target_properties(spdlog::spdlog PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
-  IMPORTED_LOCATION_RELEASE "C:/Users/HuiYong/Desktop/스터디/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/Release/spdlog.lib"
+  IMPORTED_LOCATION_RELEASE "C:/Users/HuiYong/Desktop/Study/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/Release/spdlog.lib"
   )
 
 # Import target "spdlog::spdlog" for configuration "MinSizeRel"
 set_property(TARGET spdlog::spdlog APPEND PROPERTY IMPORTED_CONFIGURATIONS MINSIZEREL)
 set_target_properties(spdlog::spdlog PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES_MINSIZEREL "CXX"
-  IMPORTED_LOCATION_MINSIZEREL "C:/Users/HuiYong/Desktop/스터디/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/MinSizeRel/spdlog.lib"
+  IMPORTED_LOCATION_MINSIZEREL "C:/Users/HuiYong/Desktop/Study/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/MinSizeRel/spdlog.lib"
   )
 
 # Import target "spdlog::spdlog" for configuration "RelWithDebInfo"
 set_property(TARGET spdlog::spdlog APPEND PROPERTY IMPORTED_CONFIGURATIONS RELWITHDEBINFO)
 set_target_properties(spdlog::spdlog PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES_RELWITHDEBINFO "CXX"
-  IMPORTED_LOCATION_RELWITHDEBINFO "C:/Users/HuiYong/Desktop/스터디/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/RelWithDebInfo/spdlog.lib"
+  IMPORTED_LOCATION_RELWITHDEBINFO "C:/Users/HuiYong/Desktop/Study/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog-build/RelWithDebInfo/spdlog.lib"
   )
 
 # This file does not depend on other imported targets which have

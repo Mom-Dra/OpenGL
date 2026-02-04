@@ -1,7 +1,33 @@
+#include <glad/gl.h>
+#include <GLFW/glfw3.h>
+#include <spdlog/spdlog.h>
+
 #include <iostream>
 #include <vector>
-#include <spdlog/spdlog.h>
-#include <GLFW/glfw3.h>
+
+#include "common.h"
+#include "shader.h"
+
+void OnFrameBufferSizeChange(GLFWwindow *window, int width, int height)
+{
+    SPDLOG_INFO("frame size changed: ({} x {})", width, height);
+    glViewport(0, 0, width, height);
+}
+
+void OnKeyEvent(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
+    SPDLOG_INFO("key: {}, scancode: {}, action: {}, mods: {}{}{}",
+                key, scancode,
+                action == GLFW_PRESS ? "Pressed" : action == GLFW_RELEASE ? "Released"
+                                               : action == GLFW_REPEAT    ? "Repeat"
+                                                                          : "Unknown",
+                mods & GLFW_MOD_CONTROL ? "C" : "-",
+                mods & GLFW_MOD_SHIFT ? "S" : "-",
+                mods & GLFW_MOD_ALT ? "A" : "-");
+
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+}
 
 int main()
 {
@@ -16,6 +42,10 @@ int main()
         return -1;
     }
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     SPDLOG_INFO("Create glfw window");
     GLFWwindow *window{glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, nullptr, nullptr)};
 
@@ -25,10 +55,37 @@ int main()
         glfwTerminate();
         return -1;
     }
+    glfwMakeContextCurrent(window);
+
+    if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress))
+    {
+        SPDLOG_ERROR("failed to initialize glad");
+        glfwTerminate();
+        return -1;
+    }
+
+    auto glVersion{glGetString(GL_VERSION)};
+    SPDLOG_INFO("OpenGL context version: {}", reinterpret_cast<const char *>(glVersion));
+
+    auto vertexShader{Shader::CreateFromFile("./OpenGLPratice/shader/simple.vs", GL_VERTEX_SHADER)};
+    auto fragmentShader{Shader::CreateFromFile("./OpenGLPratice/shader/simple.fs", GL_FRAGMENT_SHADER)};
+
+    SPDLOG_INFO("vertex shader id: {}", vertexShader->Get());
+    SPDLOG_INFO("fragment shader id: {}", fragmentShader->Get());
+
+    OnFrameBufferSizeChange(window, WINDOW_WIDTH, WINDOW_HEIGHT);
+    glfwSetFramebufferSizeCallback(window, OnFrameBufferSizeChange);
+    glfwSetKeyCallback(window, OnKeyEvent);
 
     SPDLOG_INFO("Start main loop");
     while (!glfwWindowShouldClose(window))
+    {
         glfwPollEvents();
+
+        glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glfwSwapBuffers(window);
+    }
 
     glfwTerminate();
     return 0;

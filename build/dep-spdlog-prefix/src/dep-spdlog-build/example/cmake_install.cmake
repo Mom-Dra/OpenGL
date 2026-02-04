@@ -1,8 +1,8 @@
-# Install script for directory: C:/Users/HuiYong/Desktop/스터디/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog/example
+# Install script for directory: C:/Users/HuiYong/Desktop/Study/OpenGL/build/dep-spdlog-prefix/src/dep-spdlog/example
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Users/HuiYong/Desktop/스터디/OpenGL/build/install")
+  set(CMAKE_INSTALL_PREFIX "C:/Users/HuiYong/Desktop/Study/OpenGL/build/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 

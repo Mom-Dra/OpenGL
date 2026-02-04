@@ -1,5 +1,8 @@
-C:/Users/HuiYong/Desktop/스터디/OpenGL/build/CMakeFiles/cmake_project_example.dir
-C:/Users/HuiYong/Desktop/스터디/OpenGL/build/CMakeFiles/dep-spdlog.dir
-C:/Users/HuiYong/Desktop/스터디/OpenGL/build/CMakeFiles/dep_glfw.dir
-C:/Users/HuiYong/Desktop/스터디/OpenGL/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/HuiYong/Desktop/스터디/OpenGL/build/CMakeFiles/ZERO_CHECK.dir
+C:/Users/HuiYong/Desktop/Study/OpenGL/build/CMakeFiles/cmake_project_example.dir
+C:/Users/HuiYong/Desktop/Study/OpenGL/build/CMakeFiles/dep-spdlog.dir
+C:/Users/HuiYong/Desktop/Study/OpenGL/build/CMakeFiles/dep_glfw.dir
+C:/Users/HuiYong/Desktop/Study/OpenGL/build/CMakeFiles/dep_glad.dir
+C:/Users/HuiYong/Desktop/Study/OpenGL/build/CMakeFiles/glad_gl_core_46.dir
+C:/Users/HuiYong/Desktop/Study/OpenGL/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/HuiYong/Desktop/Study/OpenGL/build/CMakeFiles/ZERO_CHECK.dir
+C:/Users/HuiYong/Desktop/Study/OpenGL/build/_deps/dep_glad-build/CMakeFiles/ALL_BUILD.dir

@@ -1,3 +1,6 @@
 {
-    "cmake.sourceDirectory": "C:/Users/HuiYong/Desktop/스터디/OpenGL/OpenGLPratice"
+    "cmake.sourceDirectory": "C:/Users/HuiYong/Desktop/Study/OpenGL/OpenGLPratice",
+    "cmake.debugConfig": {
+        "cwd": "${workspaceFolder}"
+    }
 }

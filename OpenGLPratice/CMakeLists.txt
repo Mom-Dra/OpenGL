@@ -13,7 +13,11 @@ if(MSVC)
     add_compile_options(/utf-8)
 endif()
 
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME}
+ src/main.cpp
+ src/common.cpp src/common.h
+ src/shader.cpp src/shader.h
+ )
 
 include(Dependency.cmake)
 
