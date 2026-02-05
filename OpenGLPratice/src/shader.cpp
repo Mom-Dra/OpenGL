@@ -31,12 +31,12 @@ bool Shader::LoadFile(const std::string &fileName, GLenum shaderType)
     glShaderSource(shader, 1, (const GLchar *const *)&codePtr, &codeLength);
     glCompileShader(shader);
 
-    int32_t success{0};
+    int success{0};
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
     if (success == 0)
     {
-        int32_t logLength{0};
+        int logLength{0};
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
 
         std::string infoLog;

@@ -13,8 +13,9 @@ private:
 public:
     static ProgramUPtr Create(const std::vector<ShaderPtr> &shaders);
 
-    ~Program();
+    ~Program() noexcept;
     uint32_t Get() const noexcept { return program; }
+    void Use() const;
 
 private:
     explicit Program() = default;
