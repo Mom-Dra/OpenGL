@@ -1,6 +1,6 @@
 #include "shader.h"
 
-ShaderUPtr Shader::CreateFromFile(const std::string &fileName, GLenum shaderType)
+ShaderUPtr Shader::CreateFromFile(std::string_view fileName, GLenum shaderType)
 {
     auto shader = ShaderUPtr(new Shader());
     if (!shader->LoadFile(fileName, shaderType))
@@ -17,7 +17,7 @@ Shader::~Shader()
     }
 }
 
-bool Shader::LoadFile(const std::string &fileName, GLenum shaderType)
+bool Shader::LoadFile(std::string_view fileName, GLenum shaderType)
 {
     auto result{LoadTextFile(fileName)};
     if (!result.has_value())

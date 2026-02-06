@@ -14,6 +14,7 @@ private:
 public:
     static BufferUPtr CreateWithData(uint32_t bufferType, uint32_t usage,
                                      const void *data, size_t dataSize);
+
     ~Buffer() noexcept;
 
     uint32_t Get() const noexcept { return buffer; }
@@ -21,6 +22,9 @@ public:
 
 private:
     explicit Buffer() noexcept = default;
+    explicit Buffer(const Buffer &other) noexcept = delete;
+    const Buffer &operator=(const Buffer &other) noexcept = delete;
+
     bool Init(uint32_t bufferType, uint32_t usage, const void *data, size_t dataSize);
 };
 

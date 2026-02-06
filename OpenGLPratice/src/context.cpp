@@ -1,4 +1,5 @@
 #include "context.h"
+#include "image.h"
 
 ContextUPtr Context::Create()
 {
@@ -27,11 +28,11 @@ void Context::Render()
 
 bool Context::Init()
 {
-    std::array<float, 24> vertices{
-        0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-        -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f};
+    std::array<float, 32> vertices{
+        0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f};
 
     std::array<uint16_t, 6> indices{
         0, 1, 3,
@@ -40,13 +41,14 @@ bool Context::Init()
     vertexLayout = VertexLayout::Create();
     vertexBuffer = Buffer::CreateWithData(GL_ARRAY_BUFFER, GL_STATIC_DRAW, vertices.data(), sizeof(float) * vertices.size());
 
-    vertexLayout->SetAttrib(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
-    vertexLayout->SetAttrib(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, sizeof(float) * 3);
+    vertexLayout->SetAttrib(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, 0);
+    vertexLayout->SetAttrib(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, sizeof(float) * 3);
+    vertexLayout->SetAttrib(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, sizeof(float) * 6);
 
     indexBuffer = Buffer::CreateWithData(GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, indices.data(), sizeof(uint16_t) * indices.size());
 
-    ShaderPtr vertexShader{Shader::CreateFromFile("./OpenGLPratice/shader/perVertexColor.vs", GL_VERTEX_SHADER)};
-    ShaderPtr fragmentShader{Shader::CreateFromFile("./OpenGLPratice/shader/perVertexColor.fs", GL_FRAGMENT_SHADER)};
+    ShaderPtr vertexShader{Shader::CreateFromFile("./OpenGLPratice/shader/texture.vs", GL_VERTEX_SHADER)};
+    ShaderPtr fragmentShader{Shader::CreateFromFile("./OpenGLPratice/shader/texture.fs", GL_FRAGMENT_SHADER)};
 
     if (!vertexShader || !fragmentShader)
         return false;
@@ -61,6 +63,21 @@ bool Context::Init()
     SPDLOG_INFO("program id: {}", program->Get());
 
     glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
+
+    auto image{Image::Load("./OpenGLPratice/texture/container.jpg")};
+    if (!image)
+        return false;
+    SPDLOG_INFO("image: {}x{}, {} channels", image->GetWidth(), image->GetHeight(), image->GetChannelCount());
+
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->GetWidth(), image->GetHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+                 image->GetData());
 
     return true;
 }

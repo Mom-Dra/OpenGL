@@ -14,11 +14,15 @@ public:
     static ProgramUPtr Create(const std::vector<ShaderPtr> &shaders);
 
     ~Program() noexcept;
+
     uint32_t Get() const noexcept { return program; }
     void Use() const;
 
 private:
-    explicit Program() = default;
+    explicit Program() noexcept = default;
+    explicit Program(const Program &other) noexcept = delete;
+    const Program &operator=(const Program &other) noexcept = delete;
+
     bool Link(const std::vector<ShaderPtr> &shaders);
 };
 

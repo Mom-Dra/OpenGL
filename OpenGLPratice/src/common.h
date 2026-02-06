@@ -14,6 +14,6 @@
     using klassName##Ptr = std::shared_ptr<klassName>;  \
     using klassName##WPtr = std::weak_ptr<klassName>;
 
-std::optional<std::string> LoadTextFile(const std::string &fileName);
+std::optional<std::string> LoadTextFile(std::string_view fileName);
 
 #endif

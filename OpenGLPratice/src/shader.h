@@ -10,7 +10,7 @@ private:
     uint32_t shader{0};
 
 public:
-    static ShaderUPtr CreateFromFile(const std::string &fileName, GLenum shaderType);
+    static ShaderUPtr CreateFromFile(std::string_view fileName, GLenum shaderType);
 
     ~Shader();
 
@@ -21,7 +21,7 @@ private:
     explicit Shader(const Shader &other) noexcept = delete;
     const Shader &operator=(const Shader &other) noexcept = delete;
 
-    bool LoadFile(const std::string &fileName, GLenum shaderType);
+    bool LoadFile(std::string_view fileName, GLenum shaderType);
 };
 
 #endif

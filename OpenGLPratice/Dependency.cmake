@@ -74,3 +74,21 @@ glad_add_library(glad_gl_core_46 SHARED API gl:core=4.6)
 
 set(DEP_LIST ${DEP_LIST} glad_gl_core_46)
 set(DEP_LIBS ${DEP_LIBS} glad_gl_core_46)
+
+ExternalProject_Add(
+    dep_stb
+    GIT_REPOSITORY "https://github.com/nothings/stb.git"
+    GIT_TAG "master"
+    GIT_SHALLOW 1
+    UPDATE_COMMAND ""
+    PATCH_COMMAND ""
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    TEST_COMMAND ""
+    INSTALL_COMMAND ${CMAKE_COMMAND} -E copy
+        ${PROJECT_BINARY_DIR}/dep_stb-prefix/src/dep_stb/stb_image.h
+        ${DEP_INSTALL_DIR}/include/stb/stb_image.h
+)
+
+set(DEP_LIST ${DEP_LIST} dep_stb)
+# set(DEP_LIBS ${DEP_LIBS} dep_stb)
