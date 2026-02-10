@@ -23,8 +23,17 @@ void Context::Render()
         glm::vec3{1.5f, -2.2f, -5.0f},
     };
 
-    auto view{glm::translate(glm::mat4{1.0f}, glm::vec3{0.0f, 0.0f, -3.0f})};
-    auto projection{glm::perspective(glm::radians(45.0f), static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT, 0.01f, 10.0f)};
+    float angle{static_cast<float>(glfwGetTime()) * glm::pi<float>() * 0.5f};
+    auto x{sinf(angle) * 10.0f};
+    auto z{cosf(angle) * 10.0f};
+
+    auto cameraPos{glm::vec3{x, 0.0f, z}};
+    auto cameraTarget{glm::vec3{0.0f, 0.0f, 0.0f}};
+    auto cameraUp{glm::vec3{0.0f, 1.0f, 0.0f}};
+
+    auto view{glm::lookAt(cameraPos, cameraTarget, cameraUp)};
+
+    auto projection{glm::perspective(glm::radians(45.0f), static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT, 0.01f, 100.0f)};
 
     for (size_t i{0}; i < cubePositions.size(); ++i)
     {
