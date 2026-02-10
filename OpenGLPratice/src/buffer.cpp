@@ -2,11 +2,11 @@
 
 BufferUPtr Buffer::CreateWithData(uint32_t bufferType, uint32_t usage, const void *data, size_t dataSize)
 {
-    auto buffer{BufferUPtr(new Buffer{})};
+    auto buffer{BufferUPtr{new Buffer{}}};
     if (!buffer->Init(bufferType, usage, data, dataSize))
         return nullptr;
 
-    return std::move(buffer);
+    return buffer;
 }
 
 Buffer::~Buffer()

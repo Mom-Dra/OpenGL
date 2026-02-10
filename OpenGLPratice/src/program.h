@@ -18,6 +18,9 @@ public:
     uint32_t Get() const noexcept { return program; }
     void Use() const;
 
+    void SetUniform(std::string_view name, int value) const;
+    void SetUniform(std::string_view name, const glm::mat4 &value) const;
+
 private:
     explicit Program() noexcept = default;
     explicit Program(const Program &other) noexcept = delete;

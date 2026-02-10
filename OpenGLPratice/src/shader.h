@@ -17,7 +17,7 @@ public:
     uint32_t Get() const noexcept { return shader; }
 
 private:
-    explicit Shader() = default;
+    explicit Shader() noexcept = default;
     explicit Shader(const Shader &other) noexcept = delete;
     const Shader &operator=(const Shader &other) noexcept = delete;
 

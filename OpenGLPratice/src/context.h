@@ -6,6 +6,7 @@
 #include "program.h"
 #include "buffer.h"
 #include "vertexLayout.h"
+#include "texture.h"
 
 CLASS_PTR(Context);
 class Context
@@ -15,7 +16,8 @@ private:
     VertexLayoutUPtr vertexLayout;
     BufferUPtr vertexBuffer;
     BufferUPtr indexBuffer;
-    uint32_t texture;
+    TextureUPtr texture;
+    TextureUPtr texture2;
 
 public:
     static ContextUPtr Create();

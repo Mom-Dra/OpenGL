@@ -2,11 +2,11 @@
 
 ShaderUPtr Shader::CreateFromFile(std::string_view fileName, GLenum shaderType)
 {
-    auto shader = ShaderUPtr(new Shader());
+    auto shader = ShaderUPtr{new Shader{}};
     if (!shader->LoadFile(fileName, shaderType))
         return nullptr;
 
-    return std::move(shader);
+    return shader;
 }
 
 Shader::~Shader()

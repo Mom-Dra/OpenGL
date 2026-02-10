@@ -14,6 +14,7 @@ private:
 
 public:
     static ImageUPtr Load(std::string_view filePath);
+    static ImageUPtr Create(int width, int height, int channelCount = 4);
 
     ~Image() noexcept;
 
@@ -22,12 +23,15 @@ public:
     int GetHeight() const noexcept { return height; }
     int GetChannelCount() const noexcept { return channelCount; }
 
+    void SetCheckImage(int gridX, int gridY);
+
 private:
     explicit Image() noexcept = default;
     explicit Image(const Image &other) noexcept = delete;
     const Image &operator=(const Image &other) noexcept = delete;
 
     bool LoadWithStb(std::string_view filePath);
+    bool Allocate(int width, int height, int channelCount);
 };
 
 #endif
