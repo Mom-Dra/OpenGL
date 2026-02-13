@@ -23,17 +23,21 @@ void Context::Render()
         glm::vec3{1.5f, -2.2f, -5.0f},
     };
 
-    float angle{static_cast<float>(glfwGetTime()) * glm::pi<float>() * 0.5f};
-    auto x{sinf(angle) * 10.0f};
-    auto z{cosf(angle) * 10.0f};
+    // float angle{static_cast<float>(glfwGetTime()) * glm::pi<float>() * 0.5f};
+    // auto x{sinf(angle) * 10.0f};
+    // auto z{cosf(angle) * 10.0f};
 
-    auto cameraPos{glm::vec3{x, 0.0f, z}};
-    auto cameraTarget{glm::vec3{0.0f, 0.0f, 0.0f}};
-    auto cameraUp{glm::vec3{0.0f, 1.0f, 0.0f}};
+    // auto cameraPos{glm::vec3{x, 0.0f, z}};
+    // auto cameraTarget{glm::vec3{0.0f, 0.0f, 0.0f}};
+    // auto cameraUp{glm::vec3{0.0f, 1.0f, 0.0f}};
 
-    auto view{glm::lookAt(cameraPos, cameraTarget, cameraUp)};
+    cameraFront = glm::rotate(glm::mat4{1.0f}, glm::radians(cameraYaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
+                  glm::rotate(glm::mat4{1.0f}, glm::radians(cameraPitch), glm::vec3(1.0f, 0.0f, 0.0f)) *
+                  glm::vec4{0.0f, 0.0f, -1.0f, 0.0f};
 
-    auto projection{glm::perspective(glm::radians(45.0f), static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT, 0.01f, 100.0f)};
+    auto view{glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp)};
+
+    auto projection{glm::perspective(glm::radians(45.0f), static_cast<float>(width) / height, 0.01f, 100.0f)};
 
     for (size_t i{0}; i < cubePositions.size(); ++i)
     {
@@ -43,6 +47,87 @@ void Context::Render()
         auto transform{projection * view * model};
         program->SetUniform("transform", transform);
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
+    }
+}
+
+void Context::ProcessInput(GLFWwindow *window)
+{
+    if (!cameraControl)
+        return;
+
+    constexpr float cameraSpeed{0.05f};
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraFront;
+
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraFront;
+
+    auto cameraRight{glm::normalize(glm::cross(cameraUp, -cameraFront))};
+
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraRight;
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraRight;
+
+    auto cameraUp{glm::normalize(glm::cross(-cameraFront, cameraRight))};
+
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraUp;
+
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraUp;
+}
+
+void Context::Reshape(int width, int height)
+{
+    this->width = width;
+    this->height = height;
+
+    glViewport(0, 0, width, height);
+}
+
+void Context::MouseMove(double x, double y)
+{
+    if (!cameraControl)
+        return;
+
+    auto pos{glm::vec2{x, y}};
+    auto deltaPos{pos - prevMousePos};
+
+    constexpr float cameraRotateSpeed{0.8f};
+    cameraYaw -= deltaPos.x * cameraRotateSpeed;
+    cameraPitch -= deltaPos.y * cameraRotateSpeed;
+
+    if (cameraYaw < 0.0f)
+        cameraYaw += 360.0f;
+
+    if (cameraYaw > 360.0f)
+        cameraYaw -= 360.0f;
+
+    if (cameraPitch > 89.0f)
+        cameraPitch = 89.0f;
+
+    if (cameraPitch < -89.0f)
+        cameraPitch = -89.0f;
+
+    prevMousePos = pos;
+}
+
+void Context::MouseButton(int button, int action, double x, double y)
+{
+    if (button == GLFW_MOUSE_BUTTON_RIGHT)
+    {
+        if (action == GLFW_PRESS)
+        {
+            prevMousePos = glm::vec2{x, y};
+            cameraControl = true;
+        }
+        else if (action == GLFW_RELEASE)
+        {
+            cameraControl = false;
+        }
     }
 }
 

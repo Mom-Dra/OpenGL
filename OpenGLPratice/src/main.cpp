@@ -10,7 +10,8 @@
 void OnFrameBufferSizeChange(GLFWwindow *window, int width, int height)
 {
     SPDLOG_INFO("frame size changed: ({} x {})", width, height);
-    glViewport(0, 0, width, height);
+    auto context{reinterpret_cast<Context *>(glfwGetWindowUserPointer(window))};
+    context->Reshape(width, height);
 }
 
 void OnKeyEvent(GLFWwindow *window, int key, int scancode, int action, int mods)
@@ -26,6 +27,20 @@ void OnKeyEvent(GLFWwindow *window, int key, int scancode, int action, int mods)
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+}
+
+void OnCursorPos(GLFWwindow *window, double x, double y)
+{
+    auto context{reinterpret_cast<Context *>(glfwGetWindowUserPointer(window))};
+    context->MouseMove(x, y);
+}
+
+void OnMouseButton(GLFWwindow *window, int button, int action, int modifier)
+{
+    auto context{reinterpret_cast<Context *>(glfwGetWindowUserPointer(window))};
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+    context->MouseButton(button, action, x, y);
 }
 
 int main()
@@ -73,22 +88,18 @@ int main()
         glfwTerminate();
         return -1;
     }
-
-    // ShaderPtr vertexShader{Shader::CreateFromFile("./OpenGLPratice/shader/simple.vs", GL_VERTEX_SHADER)};
-    // ShaderPtr fragmentShader{Shader::CreateFromFile("./OpenGLPratice/shader/simple.fs", GL_FRAGMENT_SHADER)};
-    // SPDLOG_INFO("vertex shader id: {}", vertexShader->Get());
-    // SPDLOG_INFO("fragment shader id: {}", fragmentShader->Get());
-
-    // auto program{Program::Create({fragmentShader, vertexShader})};
-    // SPDLOG_INFO("program id: {}", program->Get());
+    glfwSetWindowUserPointer(window, context.get());
 
     OnFrameBufferSizeChange(window, WINDOW_WIDTH, WINDOW_HEIGHT);
     glfwSetFramebufferSizeCallback(window, OnFrameBufferSizeChange);
     glfwSetKeyCallback(window, OnKeyEvent);
+    glfwSetCursorPosCallback(window, OnCursorPos);
+    glfwSetMouseButtonCallback(window, OnMouseButton);
 
     SPDLOG_INFO("Start main loop");
     while (!glfwWindowShouldClose(window))
     {
+        context->ProcessInput(window);
         context->Render();
         glfwSwapBuffers(window);
         glfwPollEvents();
