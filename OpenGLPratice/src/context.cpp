@@ -1,5 +1,6 @@
 #include "context.h"
 #include "image.h"
+#include <imgui.h>
 
 ContextUPtr Context::Create()
 {
@@ -14,6 +15,25 @@ void Context::Render()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
+
+    if (ImGui::Begin("setting"))
+    {
+        if (ImGui::ColorEdit4("clear color", glm::value_ptr(clearColor)))
+            glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+
+        ImGui::Separator();
+        ImGui::DragFloat3("camera pos", glm::value_ptr(cameraPos), 0.01f);
+        ImGui::DragFloat("camera yaw", &cameraYaw, 0.5f);
+        ImGui::DragFloat("camera pitch", &cameraPitch, 0.5f, -89.0f, 89.0f);
+        ImGui::Separator();
+        if (ImGui::Button("reset camera"))
+        {
+            cameraYaw = 0.0f;
+            cameraPitch = 0.0f;
+            cameraPos = glm::vec3{0.0f, 0.0f, 3.0f};
+        }
+    }
+    ImGui::End();
 
     std::vector<glm::vec3> cubePositions{
         glm::vec3{0.0f, 0.0f, 0.0f},
