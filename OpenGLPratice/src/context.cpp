@@ -33,19 +33,16 @@ void Context::Render()
             cameraPos = glm::vec3{0.0f, 0.0f, 3.0f};
         }
 
-        if (ImGui::CollapsingHeader("light"))
+        if (ImGui::CollapsingHeader("light", ImGuiTreeNodeFlags_DefaultOpen))
         {
+            ImGui::DragFloat3("light pos", glm::value_ptr(lightPos), 0.01f);
             ImGui::ColorEdit3("light color", glm::value_ptr(lightColor));
             ImGui::ColorEdit4("object color", glm::value_ptr(objectColor));
             ImGui::SliderFloat("ambient strength", &ambientStrength, 0.0f, 1.0f);
         }
+        ImGui::Checkbox("animation", &isAnimation);
     }
     ImGui::End();
-
-    program->Use();
-    program->SetUniform("lightColor", lightColor);
-    program->SetUniform("objectColor", objectColor);
-    program->SetUniform("ambientStrength", ambientStrength);
 
     std::vector<glm::vec3> cubePositions{
         glm::vec3{0.0f, 0.0f, 0.0f},
@@ -63,13 +60,34 @@ void Context::Render()
 
     auto projection{glm::perspective(glm::radians(45.0f), static_cast<float>(width) / height, 0.01f, 100.0f)};
 
+    auto lightModelTransform{glm::translate(glm::mat4{1.0}, lightPos) * glm::scale(glm::mat4{1.0f}, glm::vec3{0.1f})};
+    program->Use();
+    program->SetUniform("lightPos", lightPos);
+    program->SetUniform("lightColor", glm::vec3{1.0f, 1.0f, 1.0f});
+    program->SetUniform("objectColor", glm::vec3{1.0f, 1.0f, 1.0f});
+    program->SetUniform("ambientStrength", 1.0f);
+    program->SetUniform("transform", projection * view * lightModelTransform);
+    program->SetUniform("modelTransform", lightModelTransform);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
+
+    program->Use();
+    program->SetUniform("lightPos", lightPos);
+    program->SetUniform("lightColor", lightColor);
+    program->SetUniform("objectColor", objectColor);
+    program->SetUniform("ambientStrength", ambientStrength);
+
     for (size_t i{0}; i < cubePositions.size(); ++i)
     {
         const auto &pos{cubePositions[i]};
         auto model{glm::translate(glm::mat4{1.0f}, pos)};
-        model = glm::rotate(model, glm::radians(static_cast<float>(glfwGetTime()) * 120.0f + 20.0f * i), glm::vec3{1.0f, 0.5f, 0.0f});
+        auto angle{isAnimation ? static_cast<float>(glfwGetTime()) : 0.0f};
+        model = glm::rotate(model, glm::radians((isAnimation ? angle : 0.0f) * 120.0f + 20.0f * i), glm::vec3{1.0f, 0.5f, 0.0f});
+
         auto transform{projection * view * model};
+
         program->SetUniform("transform", transform);
+        program->SetUniform("modelTransform", model);
+
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
     }
 }
@@ -157,41 +175,50 @@ void Context::MouseButton(int button, int action, double x, double y)
 
 bool Context::Init()
 {
-    std::array<float, 120> vertices{
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // 0: 좌하단
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,  // 1: 우하단
-        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,   // 2: 우상단
-        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,  // 3: 좌상단
+    // 데이터 레이아웃: [Position X, Y, Z] [Normal X, Y, Z] [TexCoord U, V]
+    // 전체 크기: 24 vertices * 8 floats = 192
+    std::array<float, 192> vertices{
+        // --- 앞면 (Front Face) ---
+        // 법선: +Z 방향 (0.0, 0.0, 1.0)
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // 0: 좌하단
+        0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,  // 1: 우하단
+        0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,   // 2: 우상단
+        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,  // 3: 좌상단
 
         // --- 뒷면 (Back Face) ---
-        0.5f, -0.5f, -0.5f, 0.0f, 0.0f,  // 4: 우하단 (뒤에서 볼 때 좌하단)
-        -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, // 5: 좌하단 (뒤에서 볼 때 우하단)
-        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,  // 6: 좌상단 (뒤에서 볼 때 우상단)
-        0.5f, 0.5f, -0.5f, 0.0f, 1.0f,   // 7: 우상단 (뒤에서 볼 때 좌상단)
+        // 법선: -Z 방향 (0.0, 0.0, -1.0)
+        0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,  // 4
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, // 5
+        -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,  // 6
+        0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f,   // 7
 
         // --- 왼쪽면 (Left Face) ---
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // 8
-        -0.5f, -0.5f, 0.5f, 1.0f, 0.0f,  // 9
-        -0.5f, 0.5f, 0.5f, 1.0f, 1.0f,   // 10
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,  // 11
+        // 법선: -X 방향 (-1.0, 0.0, 0.0)
+        -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // 8
+        -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,  // 9
+        -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // 10
+        -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,  // 11
 
         // --- 오른쪽면 (Right Face) ---
-        0.5f, -0.5f, 0.5f, 0.0f, 0.0f,  // 12
-        0.5f, -0.5f, -0.5f, 1.0f, 0.0f, // 13
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,  // 14
-        0.5f, 0.5f, 0.5f, 0.0f, 1.0f,   // 15
+        // 법선: +X 방향 (1.0, 0.0, 0.0)
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,  // 12
+        0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // 13
+        0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,  // 14
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,   // 15
 
         // --- 윗면 (Top Face) ---
-        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,  // 16
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // 17
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,  // 18
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // 19
+        // 법선: +Y 방향 (0.0, 1.0, 0.0)
+        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // 16
+        0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,   // 17
+        0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,  // 18
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // 19
 
         // --- 아랫면 (Bottom Face) ---
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // 20
-        0.5f, -0.5f, -0.5f, 1.0f, 0.0f,  // 21
-        0.5f, -0.5f, 0.5f, 1.0f, 1.0f,   // 22
-        -0.5f, -0.5f, 0.5f, 0.0f, 1.0f   // 23
+        // 법선: -Y 방향 (0.0, -1.0, 0.0)
+        -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, // 20
+        0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // 21
+        0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f,   // 22
+        -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f   // 23
     };
 
     std::array<uint16_t, 36> indices{
@@ -211,8 +238,9 @@ bool Context::Init()
     vertexLayout = VertexLayout::Create();
     vertexBuffer = Buffer::CreateWithData(GL_ARRAY_BUFFER, GL_STATIC_DRAW, vertices.data(), sizeof(float) * vertices.size());
 
-    vertexLayout->SetAttrib(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, 0);
-    vertexLayout->SetAttrib(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, sizeof(float) * 3);
+    vertexLayout->SetAttrib(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, 0);
+    vertexLayout->SetAttrib(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, sizeof(float) * 3);
+    vertexLayout->SetAttrib(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, sizeof(float) * 6);
 
     indexBuffer = Buffer::CreateWithData(GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, indices.data(), sizeof(uint16_t) * indices.size());
 
